@@ -39,7 +39,7 @@ EntityManager.Register("basic_slowdown", {
 		if Game.Server.Tick > self.RemoveTick then
 			self.Size = (self.RemoveTick - Game.Server.Tick + 128)
 		end
-		if self.Size == 0 then
+		if self.Size <= 0 then
 			self.MarkedToRemove = true 
 			return
 		end

@@ -41,7 +41,7 @@ EntityManager.Register("basic_wall", {
 			if Game.Server.Tick % 10 == 0 then
 				Ent:Damage(vec2(0, 0), self.Damage, self.OwnerID)
 			end
-			Ent.Core.Pos = self.Pos
+			Ent.Core.Pos = self.Pos - self.Dir
 			return
 		end
 
@@ -51,7 +51,7 @@ EntityManager.Register("basic_wall", {
 			if Game.Server.Tick % 10 == 0 then
 				Ent:TakeDamage(vec2(0, 0), self.Damage, self.OwnerID)
 			end
-			Ent.Core.Pos = self.Pos
+			Ent.Core.Pos = self.Pos - self.Dir
 			return
 		end
 	end,
