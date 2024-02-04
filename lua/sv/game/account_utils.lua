@@ -103,6 +103,8 @@ end
 function GetDamage(CID, DamageType, Damage)
 	local Stats = Player.GetData(CID, "Stats")
 
+	print(Damage)
+
 	if DamageType == DAMAGE_TYPE_MELEE then
 		Damage = Damage + (Damage / 100 * Statistic.MeleeDamage(Stats.Str))
 	elseif DamageType == DAMAGE_TYPE_RANGE then
@@ -112,6 +114,8 @@ function GetDamage(CID, DamageType, Damage)
 	elseif DamageType == DAMAGE_TYPE_BARD then
 		-- TODO: Add formula for this shit
 	end
+
+	print(Damage, Statistic.MagicDamage(Stats.Int))
 
 	return math.floor(Damage)
 end

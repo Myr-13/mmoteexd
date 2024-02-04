@@ -8,7 +8,7 @@ end
 
 
 -- Works
-AddWork(1, "Farmer", 1, 7)
+AddWork(1, "Farmer", 250, 7)
 AddWork(2, "Miner", 50, 7)
 AddWork(3, "Forager", 50, 7)
 AddWork(4, "Fisher", 100, 7)

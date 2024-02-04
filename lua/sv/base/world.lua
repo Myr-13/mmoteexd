@@ -175,7 +175,7 @@ World.GetFirstCharacterInRadius = function(Pos, Radius, NotThis)
 		if i ~= NotThis and Ply and not FinalChr then
 			local Chr = Ply.Character
 
-			if distance(Chr.Pos, Pos) <= Radius then
+			if Chr and distance(Chr.Pos, Pos) <= Radius then
 				FinalChr = Chr
 			end
 		end
@@ -194,11 +194,14 @@ World.GetClosestCharacter = function(Pos, MaxDist)
 
 		if Ply and Ply.Character then
 			local Chr = Ply.Character
-			local Dist = distance(Chr.Pos, Pos)
 
-			if Dist < MinDist then
-				MinDist = Dist
-				ClosestChr = Chr
+			if Chr then
+				local Dist = distance(Chr.Pos, Pos)
+
+				if Dist < MinDist then
+					MinDist = Dist
+					ClosestChr = Chr
+				end
 			end
 		end
 	end
