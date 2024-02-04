@@ -38,7 +38,7 @@ EntityManager.Register("basic_wall", {
 		local Ent = World.GetClosestEntity(self.Pos, "dummy_simple", 72)
 
 		if Ent then
-			if Game.Server.Tick % 5 == 0 then
+			if Game.Server.Tick % 10 == 0 then
 				Ent:Damage(vec2(0, 0), self.Damage, self.OwnerID)
 			end
 			Ent.Core.Pos = self.Pos
@@ -48,7 +48,7 @@ EntityManager.Register("basic_wall", {
 		-- Check for characters
 		Ent = World.GetFirstCharacterInRadius(self.Pos, 72, self.OwnerID)
 		if Ent then
-			if Game.Server.Tick % 5 == 0 then
+			if Game.Server.Tick % 10 == 0 then
 				Ent:TakeDamage(vec2(0, 0), self.Damage, self.OwnerID)
 			end
 			Ent.Core.Pos = self.Pos
