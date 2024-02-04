@@ -40,6 +40,12 @@ Hook.Add("OnConsoleInit", "ItemsCommands", function()
 		include("sv/game/items/base.lua")
 		include("sv/game/items/weapons.lua")
 	end)
+
+	Console.RegisterRcon("reload_entities", "", "Reload all entities from lua", function(Result)
+		include("sv/entities/weapons/basic_projectile.lua")
+		include("sv/entities/weapons/basic_wall.lua")
+		include("sv/entities/weapons/basic_slowdown.lua")
+	end)
 end)
 
 -- Other utility functions
