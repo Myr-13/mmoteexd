@@ -29,6 +29,7 @@ EntityManager.Register("basic_projectile", {
 		local Ent = World.GetClosestEntity(self.Pos, "dummy_simple", 28)
 
 		if Ent then
+			Game.GameServer:CreateSound(self.Pos, SOUND_HIT)
 			Ent:Damage(vec2(0, 0), self.Damage, self.OwnerID)
 			self.MarkedToRemove = true
 			return
@@ -38,6 +39,7 @@ EntityManager.Register("basic_projectile", {
 		Ent = World.GetFirstCharacterInRadius(self.Pos, 28, self.OwnerID)
 
 		if Ent then
+			Game.GameServer:CreateSound(self.Pos, SOUND_HIT)
 			Ent:TakeDamage(vec2(0, 0), self.Damage, self.OwnerID)
 			self.MarkedToRemove = true
 			return
