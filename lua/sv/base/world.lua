@@ -1,9 +1,11 @@
 EntityManager = {}
 EntityManager._Entities = {}
 
+
 EntityManager.Register = function(Type, Data)
 	EntityManager._Entities[Type] = Data
 end
+
 
 World = {}
 World._Entities = {}
@@ -207,3 +209,16 @@ end
 
 Hook.Add("OnTick", "TickWorld", World.OnTick)
 Hook.Add("OnSnap", "SnapWorld", World.OnSnap)
+Hook.Add("OnConsoleInit", "EntitiesCommands", function()
+	Console.RegisterRcon("reload_entities", "", "Reload all entities from lua", function(Result)
+		EntityManager._Entities = table.clear(EntityManager._Entities)
+
+		include("sv/entities/dummies/dummy_base.lua")
+		include("sv/entities/dummies/slime.lua")
+		include("sv/entities/weapons/basic_projectile.lua")
+		include("sv/entities/weapons/basic_wall.lua")
+		include("sv/entities/weapons/basic_slowdown.lua")
+		include("sv/entities/pickup.lua")
+		include("sv/entities/work_item.lua")
+	end)
+end)
