@@ -95,16 +95,9 @@ function FireWeapon(CID, ID)
 		local Ent = World.GetClosestEntityFilter(FirePoint, "work_item", 42, function(Ent) return Ent.Alive end)
 
 		if Ent then
-			Ent.BreakProgress = Ent.BreakProgress + 10
-
-			if Ent.BreakProgress >= 100 then
-				Game.GameServer:CreateSound(FirePoint, SOUND_NINJA_HIT)
-
-				Ent.SpawnTick = Game.Server.Tick + 200
-			end
+			Ent:Damage(CID, 10)
 
 			Chr.ReloadTimer = 50
-			Game.GameServer:CreateSound(FirePoint, SOUND_HOOK_LOOP)
 
 			return
 		end

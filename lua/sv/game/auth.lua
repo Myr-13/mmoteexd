@@ -44,6 +44,12 @@ local function ChatRegister(Result)
 		end
 		Stmt:Step()
 
+		-- Create new works
+		if DB.Prepare(Stmt, string.format(DB.SQL.NewWorks, UserID)) then
+			return
+		end
+		Stmt:Step()
+
 		-- Message
 		Server.SendChat(CID, "You successfully registred")
 	end)
@@ -154,6 +160,20 @@ local function ChatLogin(Result)
 			Int = Stmt:GetInt(3)
 		})
 
+		-- Load works
+		if DB.Prepare(Stmt, string.format(DB.SQL.GetWorks, AccID)) then
+			return
+		end
+		Stmt:Step()
+
+		Player.SetData(CID, "Works", {
+			Farmer = Stmt:GetInt(1),
+			Miner = Stmt:GetInt(2),
+			Forager = Stmt:GetInt(3),
+			Fisher = Stmt:GetInt(4),
+			Loader = Stmt:GetInt(5)
+		})
+
 		-- Message and mark as logged in
 		Player.SetData(CID, "LoggedIn", true)
 		Player.SetData(CID, "SelectedWeapon", 1)
@@ -174,6 +194,7 @@ local function SaveAccount(CID)
 	local Inv = Player.GetData(CID, "Inventory")
 	local Equip = Player.GetData(CID, "Equip")
 	local Stats = Player.GetData(CID, "Stats")
+	local Works = Player.GetData(CID, "Works")
 
 	DB.Execute(function(Stmt)
 		-- Update account data
@@ -214,6 +235,12 @@ local function SaveAccount(CID)
 
 		-- Update stats data
 		if DB.Prepare(Stmt, string.format(DB.SQL.UpdateStats, Stats.Str, Stats.Dex, Stats.Int, AccData.ID)) then
+			return
+		end
+		Stmt:Step()
+
+		-- Update works data
+		if DB.Prepare(Stmt, string.format(DB.SQL.UpdateWorks, Works.Farmer, Works.Miner, Works.Forager, Works.Fisher, Works.Loader, AccData.ID)) then
 			return
 		end
 		Stmt:Step()

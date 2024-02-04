@@ -9,13 +9,13 @@ local function HandleTiles(CID, Ply)
 	if Tile == TILE_PLUS_5 and Game.Server.Tick % 50 == 0 then
 		GiveExp(CID, 5)
 
-		Player.SendBroadcast("+5 exp from chair")
+		Player.SendBroadcast(CID, "+5 exp from chair")
 	end
 
 	if Tile == TILE_PLUS_10 and Game.Server.Tick % 50 == 0 then
 		GiveExp(CID, 10)
 
-		Player.SendBroadcast("+10 exp from chair")
+		Player.SendBroadcast(CID, "+10 exp from chair")
 	end
 
 	if Tile == TILE_WATER then
@@ -69,9 +69,9 @@ local function HandleHUD(CID, Ply)
 	Text = Text .. "[%s] %d/%d MP\n"
 	Text = Text .. "───────────────\n"
 
-	if Broadcast and Broadcast.EndTime > Game.Server.Tick then
+	if Broadcast and Broadcast.EndTime >= Game.Server.Tick then
 		Text = Text .. Broadcast.Text
-		Text = Text .. "───────────────\n"
+		Text = Text .. "\n───────────────\n"
 	end
 
 	-- Show active weapon

@@ -79,3 +79,8 @@ DB.SQL.ClearEquipment = "DELETE FROM u_equip WHERE user_id = '%d'"
 DB.SQL.NewStats = "INSERT INTO u_upgrs(user_id) VALUES ('%d')"
 DB.SQL.GetStats = "SELECT * FROM u_upgrs WHERE user_id = '%d'"
 DB.SQL.UpdateStats = "UPDATE u_upgrs SET str = '%d', dex = '%d', int = '%d' WHERE user_id = '%d'"
+
+-- Stats
+DB.SQL.NewWorks = "INSERT INTO u_works(user_id) VALUES ('%d')"
+DB.SQL.GetWorks = "SELECT * FROM u_works WHERE user_id = '%d'"
+DB.SQL.UpdateWorks = "UPDATE u_works SET farmer = '%d', miner = '%d', forager = '%d', fisher = '%d', loader = '%d' WHERE user_id = '%d'"

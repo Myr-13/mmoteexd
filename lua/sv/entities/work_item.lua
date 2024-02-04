@@ -6,6 +6,21 @@ EntityManager.Register("work_item", {
 	SpawnTick = 0,
 	Alive = false,
 
+	Damage = function(self, CID, Dmg)
+		self.BreakProgress = self.BreakProgress + Dmg
+
+		Game.GameServer:CreateSound(self.Pos, SOUND_HOOK_LOOP)
+
+		if self.BreakProgress >= 100 then
+			Game.GameServer:CreateSound(self.Pos, SOUND_NINJA_HIT)
+			self.SpawnTick = Game.Server.Tick + 200
+
+			GiveWorkExp(CID, self.WorkID, 1)
+		end
+
+		Player.SendBroadcast(CID, "[%s]\n%s work", Utils.GetProgressBar(10, "═", "  ", self.BreakProgress, 100), GetWorkName(self.WorkID))
+	end,
+
 	OnInit = function(self, Pos, WorkID)
 		self.Pos = copy_vector(Pos)
 		self.SnapID = Game.Server:SnapNewID()
@@ -34,7 +49,7 @@ EntityManager.Register("work_item", {
 
 		Item.x = math.floor(self.Pos.x)
 		Item.y = math.floor(self.Pos.y)
-		Item.Type = (self.WorkID == JOB_FARMER or self.WorkID == JOB_MINER) and 1 or 0
+		Item.Type = (self.WorkID == WORK_FARMER or self.WorkID == WORK_MINER) and 1 or 0
 		Item.Subtype = 0
 	end
 })

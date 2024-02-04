@@ -7,6 +7,7 @@ local MENU_SERVER_INFO = 2
 local MENU_INVENTORY = 3
 local MENU_ITEM = 4
 local MENU_UPGRADES = 5
+local MENU_WORKS = 6
 
 for i = 0, 63 do
 	_Votes[i] = {}
@@ -64,6 +65,7 @@ local function RebuildMenu(CID)
 	local AccData = Player.GetData(CID, "AccData")
 	local Inv = Player.GetData(CID, "Inventory")
 	local Stats = Player.GetData(CID, "Stats")
+	local Works = Player.GetData(CID, "Works")
 
 	if _VoteMenus[CID] == MENU_ACCOUNT then
 		AddVoteLabel(CID, "┌─ Profile info")
@@ -77,6 +79,7 @@ local function RebuildMenu(CID)
 		AddVoteLabel(CID, "├─ Account menu")
 		AddVoteMenuFormat(CID, MENU_INVENTORY, "│ ☞ Inventory")
 		AddVoteMenuFormat(CID, MENU_UPGRADES, "│ ☞ Stats")
+		AddVoteMenuFormat(CID, MENU_WORKS, "│ ☞ Works")
 		AddVoteLabel(CID, "└──────────────────")
 	elseif _VoteMenus[CID] == MENU_SERVER_INFO then
 		AddBack(CID, MENU_ACCOUNT)
@@ -124,6 +127,27 @@ local function RebuildMenu(CID)
 		AddVoteLabel(CID, "└──────────────────")
 
 		AddBack(CID, MENU_INVENTORY)
+	elseif _VoteMenus[CID] == MENU_WORKS then
+		local FarmerLevel = GetWorkLevel(WORK_FARMER, Works.Farmer)
+		local MinerLevel = GetWorkLevel(WORK_MINER, Works.Miner)
+		local ForagerLevel = GetWorkLevel(WORK_FORAGER, Works.Forager)
+		local FisherLevel = GetWorkLevel(WORK_FISHER, Works.Fisher)
+		local LoaderLevel = GetWorkLevel(WORK_LOADER, Works.Loader)
+
+		AddVoteLabel(CID, "┌─ Works")
+		AddVoteLabel(CID, "│ ღ Farmer - %d lvl (%d/%d)", FarmerLevel, Works.Farmer, GetWorkExp(WORK_FARMER, FarmerLevel + 1))
+		AddVoteLabel(CID, "│ └── Farming luck: +%d ☘", GetWorkLuck(WORK_FARMER, FarmerLevel))
+		AddVoteLabel(CID, "│ ღ Miner - %d lvl (%d/%d)", MinerLevel, Works.Miner, GetWorkExp(WORK_MINER, MinerLevel + 1))
+		AddVoteLabel(CID, "│ └── Mining luck: +%d ☘", GetWorkLuck(WORK_MINER, MinerLevel))
+		AddVoteLabel(CID, "│ ღ Forager - %d lvl (%d/%d)", ForagerLevel, Works.Forager, GetWorkExp(WORK_FORAGER, ForagerLevel + 1))
+		AddVoteLabel(CID, "│ └── Foraging luck: +%d ☘", GetWorkLuck(WORK_FORAGER, ForagerLevel))
+		AddVoteLabel(CID, "│ ღ Fisher - %d lvl (%d/%d)", FisherLevel, Works.Fisher, GetWorkExp(WORK_FISHER, FisherLevel + 1))
+		AddVoteLabel(CID, "│ └── Fishing luck: +%d ☘", GetWorkLuck(WORK_FISHER, FisherLevel))
+		AddVoteLabel(CID, "│ ღ Loader - %d lvl (%d/%d)", LoaderLevel, Works.Loader, GetWorkExp(WORK_LOADER, LoaderLevel + 1))
+		AddVoteLabel(CID, "│ └── Loading luck: +%d ☘", GetWorkLuck(WORK_LOADER, LoaderLevel))
+		AddVoteLabel(CID, "└──────────────────")
+
+		AddBack(CID, MENU_ACCOUNT)
 	elseif _VoteMenus[CID] == MENU_NONE then
 		-- Just empty
 	else

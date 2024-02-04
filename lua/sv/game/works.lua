@@ -1,22 +1,64 @@
 local _WorksData = {}
 
 
-function AddWork(ID, Name)
-	_WorksData[ID] = Name
-	_G["JOB_" .. string.upper(Name)] = ID
+function AddWork(ID, Name, Exp, Luck)
+	_WorksData[ID] = {["ID"] = ID, ["Name"] = Name, ["Exp"] = Exp, ["Luck"] = Luck}
+	_G["WORK_" .. string.upper(Name)] = ID
 end
 
 
 -- Works
-AddWork(1, "Farmer")
-AddWork(2, "Miner")
-AddWork(3, "Forager")
-AddWork(4, "Fisher")
-AddWork(5, "Loader")
+AddWork(1, "Farmer", 1, 7)
+AddWork(2, "Miner", 50, 7)
+AddWork(3, "Forager", 50, 7)
+AddWork(4, "Fisher", 100, 7)
+AddWork(5, "Loader", 500, 7)
 
 
 function GetWorkName(ID)
-	return _WorksData[ID]
+	return _WorksData[ID].Name
+end
+
+
+function GetWorkExp(ID, Lvl)
+	if not Lvl then
+		Lvl = 1
+	end
+
+	return _WorksData[ID].Exp * Lvl
+end
+
+
+function GetWorkLuck(ID, Lvl)
+	if not Lvl then
+		Lvl = 1
+	end
+
+	return _WorksData[ID].Luck * Lvl
+end
+
+
+function GetWorkLevel(ID, Exp)
+	return math.floor(Exp / GetWorkExp(ID))
+end
+
+
+function GiveWorkExp(CID, ID, Exp)
+	local Works = Player.GetData(CID, "Works")
+
+	if ID == WORK_FARMER then
+		Works.Farmer = Works.Farmer + Exp
+	elseif ID == WORK_MINER then
+		Works.Miner = Works.Miner + Exp
+	elseif ID == WORK_FORAGER then
+		Works.Forager = Works.Forager + Exp
+	elseif ID == WORK_FISHER then
+		Works.Fisher = Works.Fisher + Exp
+	else
+		Works.Loader = Works.Loader + Exp
+	end
+
+	Player.SetData(CID, "Works", Works)
 end
 
 
@@ -43,15 +85,15 @@ local function InitJobs()
 			end
 
 			if ID == TILE_JOB_FARM then
-				World.Spawn("work_item", RealPos, JOB_FARMER)
+				World.Spawn("work_item", RealPos, WORK_FARMER)
 			elseif ID == TILE_JOB_MINE then
-				World.Spawn("work_item", RealPos, JOB_MINER)
+				World.Spawn("work_item", RealPos, WORK_MINER)
 			elseif ID == TILE_JOB_FORAGER then
-				World.Spawn("work_item", RealPos, JOB_FORAGER)
+				World.Spawn("work_item", RealPos, WORK_FORAGER)
 			elseif ID == TILE_JOB_FISHER or SwitchID == TILE_JOB_FISHER then
-				World.Spawn("work_item", RealPos, JOB_FISHER)
+				World.Spawn("work_item", RealPos, WORK_FISHER)
 			elseif ID == TILE_JOB_LOADER then
-				World.Spawn("work_item", RealPos, JOB_LOADER)
+				World.Spawn("work_item", RealPos, WORK_LOADER)
 			end
 		end
 	end
