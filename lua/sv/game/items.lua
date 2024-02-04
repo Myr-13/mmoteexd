@@ -26,6 +26,7 @@ function AddItem(ID, Type, Name, Desc, Data)
 	}
 
 	_Items[ID] = Item
+	_G["ITEM_" .. string.upper(string.gsub(Name, " ", "_"))] = ID
 end
 
 

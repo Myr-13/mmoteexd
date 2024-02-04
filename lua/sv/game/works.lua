@@ -1,18 +1,17 @@
 local _WorksData = {}
 
 
-function AddWork(ID, Name, Exp, Luck)
-	_WorksData[ID] = {["ID"] = ID, ["Name"] = Name, ["Exp"] = Exp, ["Luck"] = Luck}
-	_G["WORK_" .. string.upper(Name)] = ID
+function AddWork(Data)
+	local ID = Data.ID
+	_WorksData[ID] = Data
+	_G["WORK_" .. string.upper(Data.Name)] = ID
 end
 
 
--- Works
-AddWork(1, "Farmer", 250, 7)
-AddWork(2, "Miner", 50, 7)
-AddWork(3, "Forager", 50, 7)
-AddWork(4, "Fisher", 100, 7)
-AddWork(5, "Loader", 500, 7)
+WORK_PICKUP_TYPE_RANDOM_ITEM = 0
+WORK_PICKUP_TYPE_LEVEL_ITEM = 1
+
+include("sv/game/works/works.lua")
 
 
 function GetWorkName(ID)
@@ -40,6 +39,16 @@ end
 
 function GetWorkLevel(ID, Exp)
 	return math.floor(Exp / GetWorkExp(ID))
+end
+
+
+function GetWorkPickupType(ID)
+	return _WorksData[ID].PickupType
+end
+
+
+function GetWorkItems(ID)
+	return _WorksData[ID].Items
 end
 
 

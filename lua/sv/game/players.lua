@@ -88,9 +88,9 @@ local function HandleHUD(CID, Ply)
 
 	Server.SendBroadcast(CID, Text,
 		Lvl, Exp, NeedExp,  -- Main stat
-		Utils.GetProgressBar(10, "═", " ", Exp, NeedExp), math.floor(Exp / NeedExp * 100),  -- Exp
-		Utils.GetProgressBar(10, "═", " ", Health, MaxHealth), Health, MaxHealth,  -- Health
-		Utils.GetProgressBar(10, "═", " ", Mana, MaxMana), Mana, MaxMana  -- Mana
+		Utils.GetProgressBar(10, "═", "  ", Exp, NeedExp), math.floor(Exp / NeedExp * 100),  -- Exp
+		Utils.GetProgressBar(10, "═", "  ", Health, MaxHealth), Health, MaxHealth,  -- Health
+		Utils.GetProgressBar(10, "═", "  ", Mana, MaxMana), Mana, MaxMana  -- Mana
 	)
 
 	Ply.Score = Lvl

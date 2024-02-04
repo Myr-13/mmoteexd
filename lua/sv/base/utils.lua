@@ -92,15 +92,8 @@ Player.SendBroadcast = function(CID, Format, ...)
 end
 
 
-Server.SendChat = function(CID, ...)
-	local Args = {...}
-	local Text = ""
-
-	for _, v in pairs(Args) do
-		Text = Text .. tostring(v)
-	end
-
-	Game.GameServer:SendChatTarget(CID, Text, 3)
+Server.SendChat = function(CID, Format, ...)
+	Game.GameServer:SendChatTarget(CID, string.format(Format, ...), 3)
 end
 
 

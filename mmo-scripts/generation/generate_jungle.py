@@ -6,13 +6,6 @@ import random
 from vmath import *
 from PIL import Image
 
-from ctypes import CDLL, c_double, POINTER
-
-lib = CDLL("C:\\Users\\nemo\\Desktop\\Тык\\mmo\\scripts\\perlin_noise.dll")
-lib.perlin_noise.argtypes = [c_double]
-lib.perlin_noise.restype = c_double
-per_noise_1d = lib.perlin_noise
-
 # === Config ===
 # General
 map_width = 1000
@@ -60,16 +53,16 @@ def generate_landscape(tilemap, noise):
 			if y > value:
 				tilemap[y][x][0] = 1
 
-				# if y > value + 10:
-				# 	value2 = noise([x / map_caves_scale_modificator, y / map_caves_scale_modificator])
-				# 	if value2 < 0:
-				# 		tilemap[y][x][0] = 0
+				if y > value + 10:
+					value2 = noise([x / map_caves_scale_modificator, y / map_caves_scale_modificator])
+					if value2 < 0:
+						tilemap[y][x][0] = 0
 
-			# if tilemap[y][x][0] != 0:
-			# 	value2 = noise([x / map_caves_big_scale_modificator, y / map_caves_big_scale_modificator])
+			if tilemap[y][x][0] != 0:
+				value2 = noise([x / map_caves_big_scale_modificator, y / map_caves_big_scale_modificator])
 
-			# 	if value2 > -0.1 and value2 < 0:
-			# 		tilemap[y][x][0] = 0
+				if value2 > -0.1 and value2 < 0:
+					tilemap[y][x][0] = 0
 
 
 def generate_caves(tilemap, noise):
@@ -166,6 +159,8 @@ def generate():
 	physics_group = map.groups.new_physics()
 	game_layer = physics_group.layers.new_game(map_width, map_height)
 	game_layer.tiles = tilemap
+
+	switch_layer = physics_group.layers.new_physics("Switch")
 
 	finish_time = get_time() - start_time
 	print("\nTook %.2f seconds" % finish_time)

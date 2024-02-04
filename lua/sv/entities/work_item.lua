@@ -11,11 +11,23 @@ EntityManager.Register("work_item", {
 
 		Game.GameServer:CreateSound(self.Pos, SOUND_HOOK_LOOP)
 
-		if self.BreakProgress >= 100 then
+		if self.BreakProgress >= 1 then
+			-- Sound & respawn time
 			Game.GameServer:CreateSound(self.Pos, SOUND_NINJA_HIT)
 			self.SpawnTick = Game.Server.Tick + 200
 
+			-- Exp
 			GiveWorkExp(CID, self.WorkID, 1)
+
+			-- Give item
+			local PickupType = GetWorkPickupType(self.WorkID)
+			local Items = GetWorkItems(self.WorkID)
+
+			if PickupType == WORK_PICKUP_TYPE_RANDOM_ITEM then
+				GiveItem(CID, Items[math.random(1, #Items)], 1)
+			else
+				GiveItem(CID, Items[math.random(1, #Items)], 1)
+			end
 		end
 
 		Player.SendBroadcast(CID, "[%s]\n%s work", Utils.GetProgressBar(10, "═", "  ", self.BreakProgress, 100), GetWorkName(self.WorkID))

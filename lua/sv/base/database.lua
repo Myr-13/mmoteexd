@@ -1,10 +1,12 @@
 DB = {}
 
+
 DB.Execute = function(Callback)
 	local Name = "__DB_Callback"
 	_G[Name] = Callback
 	Engine.Database:Execute(Name)
 end
+
 
 DB.SimpleExecute = function(Query)
 	local Name = "__DB_Simple_Callback_" .. tostring(hash(Query))
@@ -16,6 +18,7 @@ DB.SimpleExecute = function(Query)
 	end
 	Engine.Database:Execute(Name)
 end
+
 
 DB.Prepare = function(Stmt, Query)
 	if Stmt:Prepare(Query) then
