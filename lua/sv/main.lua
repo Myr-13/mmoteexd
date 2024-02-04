@@ -40,6 +40,8 @@ include("sv/game/works.lua")
 include("sv/entities/dummies/dummy_base.lua")
 include("sv/entities/dummies/slime.lua")
 include("sv/entities/weapons/basic_projectile.lua")
+include("sv/entities/weapons/basic_wall.lua")
+include("sv/entities/weapons/basic_slowdown.lua")
 include("sv/entities/pickup.lua")
 include("sv/entities/work_item.lua")
 
