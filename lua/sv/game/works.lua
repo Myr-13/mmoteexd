@@ -52,6 +52,33 @@ function GetWorkItems(ID)
 end
 
 
+function GetWorkLuckItemCount(CID, ID)
+	local Works = Player.GetData(CID, "Works")
+	local Luck = 0
+
+	if ID == WORK_FARMER then
+		Luck = GetWorkLuck(ID, Works.Farmer)
+	elseif ID == WORK_MINER then
+		Luck = GetWorkLuck(ID, Works.Miner)
+	elseif ID == WORK_FORAGER then
+		Luck = GetWorkLuck(ID, Works.Forager)
+	elseif ID == WORK_FISHER then
+		Luck = GetWorkLuck(ID, Works.Fisher)
+	else
+		Luck = GetWorkLuck(ID, Works.Loader)
+	end
+
+	local Items = math.floor(Luck / 100) + 1
+	local Chance = Luck % 100
+
+	if Chance ~= 0 and math.random(1, 100) < Chance then
+		Items = Items + 1
+	end
+
+	return Items
+end
+
+
 function GiveWorkExp(CID, ID, Exp)
 	local Works = Player.GetData(CID, "Works")
 

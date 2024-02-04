@@ -1,7 +1,7 @@
 AddWork({
 	["ID"] = 1,
 	["Name"] = "Farmer",
-	["Exp"] = 250,
+	["Exp"] = 1,
 	["Luck"] = 7,
 	["PickupType"] = WORK_PICKUP_TYPE_RANDOM_ITEM,
 	["Items"] = {

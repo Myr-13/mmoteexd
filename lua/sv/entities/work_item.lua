@@ -24,9 +24,9 @@ EntityManager.Register("work_item", {
 			local Items = GetWorkItems(self.WorkID)
 
 			if PickupType == WORK_PICKUP_TYPE_RANDOM_ITEM then
-				GiveItem(CID, Items[math.random(1, #Items)], 1)
+				GiveItem(CID, Items[math.random(1, #Items)], GetWorkLuckItemCount(CID, self.WorkID))
 			else
-				GiveItem(CID, Items[math.random(1, #Items)], 1)
+				GiveItem(CID, Items[math.random(1, #Items)], GetWorkLuckItemCount(CID, self.WorkID))
 			end
 		end
 
