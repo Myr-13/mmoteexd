@@ -1,0 +1,30 @@
+Hooks:
+- OnPlayerLeft
+-- Args: ClientID
+-- Desc: Called when player disconnecting from server
+
+- OnPlayerJoin
+-- Args: ClientID
+-- Desc: Called when player joined to server
+
+- OnMessage
+-- Args: MsgID, Unpacker, ClientID
+-- Desc: Called when client sending game packet to server (checkout sv/base/network.lua)
+
+- OnConsoleInit
+-- Args: -
+-- Desc: Called when server start load console and interfaces (you can use this for init of your gamemode)
+
+- OnPlayerLoggedIn
+-- Args: ClientID
+-- Desc: Called when player logged in account
+
+List of alt-symbols:
+│ ┤ ╡ ╢ ╖
+╕ ╣ ║ ╗ ╝
+╜ ╛ ┐ └ ┴
+┬ ├ ─ ┼ ╞
+╟ ╚ ╔ ╩ ╦
+╠ ═ ╬ ╧ ╨
+╤ ╥ ╙ ╘ ╒
+╓ ╫ ╪ ┘ ┌

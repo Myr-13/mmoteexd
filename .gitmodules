@@ -1,0 +1,8 @@
+[submodule "ddnet-libs"]
+	path = ddnet-libs
+	url = https://github.com/ddnet/ddnet-libs
+	shallow = true
+[submodule "mmo-libs"]
+	path = mmo-libs
+	url = https://github.com/Myr-13/mmo-libs
+	shallow = true
