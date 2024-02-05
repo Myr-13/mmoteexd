@@ -13,13 +13,11 @@ EntityManager.Register("basic_slowdown", {
 	Segments = 10,
 	Size = 1,
 
-	OnInit = function(self, Pos, Dir, OwnerID, DamageType, Damage)
+	OnInit = function(self, Pos, Dir, OwnerID)
 		self.Pos = copy_vector(Pos)
 		self.Dir = copy_vector(Dir)
 		self.SnapID = Game.Server:SnapNewID()
 		self.OwnerID = OwnerID
-		self.DamageType = DamageType
-		self.Damage = Damage
 		self.StartedTick = Game.Server.Tick
 		self.RemoveTick = Game.Server.Tick + 350
 		self.SnapIDs = {}

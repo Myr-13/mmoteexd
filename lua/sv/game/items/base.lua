@@ -39,3 +39,7 @@ AddItem(32, TYPE_ITEM, "Material", "...")
 
 -- Woods
 AddItem(33, TYPE_ITEM, "Oak wood", "...")
+AddItem(34, TYPE_ITEM, "Birch wood", "...")
+AddItem(35, TYPE_ITEM, "Spruce wood", "...")
+AddItem(36, TYPE_ITEM, "Dark oak wood", "...")
+AddItem(37, TYPE_ITEM, "Acacia wood", "...")

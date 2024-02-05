@@ -29,7 +29,11 @@ AddWork({
 	["Luck"] = 7,
 	["PickupType"] = WORK_PICKUP_TYPE_LEVEL_ITEM,
 	["Items"] = {
-		ITEM_OAK_WOOD
+		ITEM_OAK_WOOD,
+		ITEM_DARK_OAK_WOOD,
+		ITEM_SPRUCE_WOOD,
+		ITEM_BIRCH_WOOD,
+		ITEM_ACACIA_WOOD
 	}
 })
 
