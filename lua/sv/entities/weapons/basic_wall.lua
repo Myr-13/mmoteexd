@@ -8,6 +8,9 @@ EntityManager.Register("basic_wall", {
 	Damage = 0,
 	StartedTick = 0,
 	EndTick = 0,
+	Fov = 160,
+	SegmentsHalf = 4,
+	SnapIDs = nil,
 
 	OnInit = function(self, Pos, Dir, OwnerID, DamageType, Damage)
 		self.Pos = copy_vector(Pos)
@@ -18,6 +21,9 @@ EntityManager.Register("basic_wall", {
 		self.Damage = Damage
 		self.StartedTick = Game.Server.Tick
 		self.EndTick = Game.Server.Tick + 75
+		for i = -self.SegmentsHalf, self.SegmentsHalf do
+			self.SnapIDs[i] = Game.Server:SnapNewID()
+		end
 	end,
 
 	OnTick = function(self)
@@ -57,18 +63,27 @@ EntityManager.Register("basic_wall", {
 	end,
 
 	OnSnap = function(self, ClientID)
-		local Item = Game.Server:SnapNewItemLaser(self.SnapID)
+		self.Fov = self.Fov * math.pi / 180
+		Step = self.Fov / self.SegmentsHalf
+		for i = -self.SegmentsHalf, self.SegmentsHalf do
+			angle = Step * i
+		  
+			x = cos(angle) 
+			y = sin(angle) 
 
-		Item.ToX = math.floor(self.Pos.x - self.Dir.y * 5)
-		Item.ToY = math.floor(self.Pos.y + self.Dir.x * 5)
-		Item.FromX = math.floor(self.Pos.x + self.Dir.y * 5)
-		Item.FromY = math.floor(self.Pos.y - self.Dir.x * 5)
-		Item.StartTick = Game.Server.Tick
-		Item.Owner = self.OwnerID
-		Item.Type = -1
-		Item.SwitchNumber = -1
-		Item.Subtype = -1
-		Item.Flags = 0
+			local Item = Game.Server:SnapNewItemLaser(self.SnapIDs[i])
+
+			Item.ToX = math.floor(self.Pos.x) + x
+			Item.ToY = math.floor(self.Pos.y) + y
+			Item.FromX = math.floor(self.Pos.x)
+			Item.FromY = math.floor(self.Pos.y)
+			Item.StartTick = Game.Server.Tick
+			Item.Owner = self.OwnerID
+			Item.Type = -1
+			Item.SwitchNumber = -1
+			Item.Subtype = -1
+			Item.Flags = 0
+		  end
 	end
 })
 
