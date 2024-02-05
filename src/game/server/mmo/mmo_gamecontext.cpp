@@ -127,6 +127,8 @@ bool CGameContext::OnMMOMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 void CGameContext::OnMMOTick()
 {
 	LUA_FIRE_EVENT("OnTick")
+
+	m_DB.Loop();
 }
 
 CPlayer *CGameContext::LuaGetPlayer(int ClientID)

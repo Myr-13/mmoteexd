@@ -5,6 +5,7 @@
 #include <queue>
 #include <string>
 
+// TODO: Rewrite to half-async db
 class CSQLite
 {
 	struct SRequest
@@ -15,13 +16,10 @@ class CSQLite
 
 	struct sqlite3 *m_pDB;
 	std::queue<SRequest> m_Requests;
-	void *m_pThread;
 
 public:
 	CSQLite();
 	~CSQLite();
-
-	bool m_IsRunning;
 
 	struct SResult
 	{

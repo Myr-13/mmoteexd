@@ -6,14 +6,6 @@
 #include <lua/lua.hpp>
 #include <engine/external/luabridge/LuaBridge.h>
 
-void th_func(void *pUser)
-{
-	CSQLite *pSelf = (CSQLite *)pUser;
-
-	while(pSelf->m_IsRunning)
-		pSelf->Loop();
-}
-
 bool CSQLite::SResult::CheckError(int Result)
 {
 	if(Result != SQLITE_OK)
@@ -79,29 +71,19 @@ void CSQLite::Disconnect()
 	{
 		sqlite3_close(m_pDB);
 
-		dbg_msg("sqlite", "closing connection");
-
-		m_IsRunning = false;
-		thread_wait(m_pThread);
+		dbg_msg("sqlite3_lua", "closing connection");
 	}
 }
 
 void CSQLite::Run()
 {
-	if(!m_pDB)
-		return;
 
-	m_IsRunning = true;
-	m_pThread = thread_init(th_func, this, "SQLite worker");
 }
 
 void CSQLite::Loop()
 {
 	if(m_Requests.empty())
-	{
-		std::this_thread::sleep_for(std::chrono::milliseconds(30));
 		return;
-	}
 
 	SRequest Req = m_Requests.front();
 	m_Requests.pop();
