@@ -14,15 +14,15 @@ EntityManager.Register("basic_wall", {
 	WorldID = 0,
 
 	OnInit = function(self, Pos, WorldID, Dir, OwnerID, DamageType, Damage)
-        self.Pos = copy_vector(Pos)
-        self.Dir = copy_vector(Dir) * vec2(10, 10)
-        self.SnapID = Game.Server:SnapNewID()
-        self.OwnerID = OwnerID
-        self.DamageType = DamageType
-        self.Damage = Damage
-        self.StartedTick = Game.Server.Tick
-        self.EndTick = Game.Server.Tick + 75
-        self.WorldID = WorldID
+		self.Pos = copy_vector(Pos)
+		self.Dir = copy_vector(Dir) * vec2(10, 10)
+		self.SnapID = Game.Server:SnapNewID()
+		self.OwnerID = OwnerID
+		self.DamageType = DamageType
+		self.Damage = Damage
+		self.StartedTick = Game.Server.Tick
+		self.EndTick = Game.Server.Tick + 75
+		self.WorldID = WorldID
 
 		for i = -self.SegmentsHalf, self.SegmentsHalf do
 			self.SnapIDs[i] = Game.Server:SnapNewID()
@@ -66,9 +66,9 @@ EntityManager.Register("basic_wall", {
 	end,
 
 	OnSnap = function(self, ClientID)
-        if self:NetworkClipped(ClientID) then
-            return
-        end
+		if self:NetworkClipped(ClientID) then
+			return
+		end
 
 		self.Fov = self.Fov * math.pi / 180
 		Step = self.Fov / self.SegmentsHalf
