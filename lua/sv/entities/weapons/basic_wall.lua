@@ -8,8 +8,9 @@ EntityManager.Register("basic_wall", {
 	Damage = 0,
 	StartedTick = 0,
 	EndTick = 0,
+	WorldID = 0,
 
-	OnInit = function(self, Pos, Dir, OwnerID, DamageType, Damage)
+	OnInit = function(self, Pos, WorldID, Dir, OwnerID, DamageType, Damage)
 		self.Pos = copy_vector(Pos)
 		self.Dir = copy_vector(Dir) * vec2(10, 10)
 		self.SnapID = Game.Server:SnapNewID()
@@ -18,6 +19,7 @@ EntityManager.Register("basic_wall", {
 		self.Damage = Damage
 		self.StartedTick = Game.Server.Tick
 		self.EndTick = Game.Server.Tick + 75
+		self.WorldID = WorldID
 	end,
 
 	OnTick = function(self)
@@ -29,7 +31,7 @@ EntityManager.Register("basic_wall", {
 		end
 
 		-- Check for walls
-		if Game.Collision:IntersectLine(self.Pos, self.Pos + self.Dir * vec2(6, 6), nil, nil) ~= TILE_AIR then
+		if Game.Collision(self.WorldID):IntersectLine(self.Pos, self.Pos + self.Dir * vec2(6, 6), nil, nil) ~= TILE_AIR then
 			self.MarkedToRemove = true
 			return
 		end
@@ -57,6 +59,10 @@ EntityManager.Register("basic_wall", {
 	end,
 
 	OnSnap = function(self, ClientID)
+		if self:NetworkClipped(ClientID) then
+			return
+		end
+
 		local Item = Game.Server:SnapNewItemLaser(self.SnapID)
 
 		Item.ToX = math.floor(self.Pos.x - self.Dir.y * 5)

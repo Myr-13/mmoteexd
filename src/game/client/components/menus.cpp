@@ -12,7 +12,6 @@
 
 #include <engine/client.h>
 #include <engine/config.h>
-#include <engine/editor.h>
 #include <engine/friends.h>
 #include <engine/graphics.h>
 #include <engine/keys.h>
@@ -681,7 +680,7 @@ int CMenus::RenderMenubar(CUIRect r)
 	ColorRGBA QuitColor(1, 0, 0, 0.5f);
 	if(DoButton_MenuTab(&s_QuitButton, FONT_ICON_POWER_OFF, 0, &Button, IGraphics::CORNER_T, &m_aAnimatorsSmallPage[SMALL_TAB_QUIT], nullptr, nullptr, &QuitColor, 10.0f))
 	{
-		if(m_pClient->Editor()->HasUnsavedData() || (Client()->GetCurrentRaceTime() / 60 >= g_Config.m_ClConfirmQuitTime && g_Config.m_ClConfirmQuitTime >= 0))
+		if((Client()->GetCurrentRaceTime() / 60 >= g_Config.m_ClConfirmQuitTime && g_Config.m_ClConfirmQuitTime >= 0))
 		{
 			m_Popup = POPUP_QUIT;
 		}
@@ -1332,12 +1331,6 @@ int CMenus::Render()
 
 			// additional info
 			Box.VMargin(20.f, &Box);
-			if(m_pClient->Editor()->HasUnsavedData())
-			{
-				str_format(aBuf, sizeof(aBuf), "%s\n\n%s", Localize("There's an unsaved map in the editor, you might want to save it."), Localize("Continue anyway?"));
-				Props.m_MaxWidth = Part.w - 20.0f;
-				UI()->DoLabel(&Box, aBuf, 20.f, TEXTALIGN_ML, Props);
-			}
 
 			// buttons
 			Part.VMargin(80.0f, &Part);

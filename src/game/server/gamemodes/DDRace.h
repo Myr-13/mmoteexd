@@ -10,8 +10,6 @@ public:
 	CGameControllerDDRace(class CGameContext *pGameServer);
 	~CGameControllerDDRace();
 
-	CScore *Score();
-
 	void HandleCharacterTiles(class CCharacter *pChr, int MapIndex) override;
 
 	void OnPlayerConnect(class CPlayer *pPlayer) override;

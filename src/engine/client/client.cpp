@@ -14,7 +14,6 @@
 #include <engine/config.h>
 #include <engine/console.h>
 #include <engine/discord.h>
-#include <engine/editor.h>
 #include <engine/engine.h>
 #include <engine/favorites.h>
 #include <engine/graphics.h>
@@ -2629,10 +2628,7 @@ void CClient::Update()
 	m_ServerBrowser.Update();
 
 	// update editor/gameclient
-	if(m_EditorActive)
-		m_pEditor->OnUpdate();
-	else
-		GameClient()->OnUpdate();
+	GameClient()->OnUpdate();
 
 	Discord()->Update();
 	Steam()->Update();
@@ -2670,7 +2666,6 @@ void CClient::InitInterfaces()
 {
 	// fetch interfaces
 	m_pEngine = Kernel()->RequestInterface<IEngine>();
-	m_pEditor = Kernel()->RequestInterface<IEditor>();
 	m_pFavorites = Kernel()->RequestInterface<IFavorites>();
 	m_pSound = Kernel()->RequestInterface<IEngineSound>();
 	m_pGameClient = Kernel()->RequestInterface<IGameClient>();
@@ -2767,9 +2762,6 @@ void CClient::Run()
 	// init the input
 	Input()->Init();
 
-	// init the editor
-	m_pEditor->Init();
-
 	m_ServerBrowser.OnInit();
 	// loads the existing ddnet info file if it exists
 	LoadDDNetInfo();
@@ -2841,17 +2833,6 @@ void CClient::Run()
 			m_aCmdPlayDemo[0] = 0;
 		}
 
-		// handle pending map edits
-		if(m_aCmdEditMap[0])
-		{
-			int Result = m_pEditor->HandleMapDrop(m_aCmdEditMap, IStorage::TYPE_ALL_OR_ABSOLUTE);
-			if(Result)
-				g_Config.m_ClEditor = true;
-			else
-				dbg_msg("editor", "editing passed map file '%s' failed", m_aCmdEditMap);
-			m_aCmdEditMap[0] = 0;
-		}
-
 		// progress on dummy connect if security token handshake skipped/passed
 		if(m_DummySendConnInfo && !m_aNetClient[CONN_DUMMY].SecurityTokenUnknown())
 		{
@@ -2896,30 +2877,8 @@ void CClient::Run()
 		if(CtrlShiftKey(KEY_G, LastG))
 			g_Config.m_DbgGraphs ^= 1;
 
-		if(CtrlShiftKey(KEY_E, LastE))
-		{
-			if(g_Config.m_ClEditor)
-				m_pEditor->OnClose();
-			g_Config.m_ClEditor = g_Config.m_ClEditor ^ 1;
-		}
-
 		// render
 		{
-			if(g_Config.m_ClEditor)
-			{
-				if(!m_EditorActive)
-				{
-					Input()->MouseModeRelative();
-					GameClient()->OnActivateEditor();
-					m_pEditor->OnActivate();
-					m_EditorActive = true;
-				}
-			}
-			else if(m_EditorActive)
-			{
-				m_EditorActive = false;
-			}
-
 			Update();
 			int64_t Now = time_get();
 
@@ -2972,10 +2931,7 @@ void CClient::Run()
 				if(!m_EditorActive)
 					Render();
 				else
-				{
-					m_pEditor->OnRender();
 					DebugRender();
-				}
 				m_pGraphics->Swap();
 			}
 			else if(!IsRenderActive)
@@ -3071,8 +3027,6 @@ void CClient::Run()
 	// close socket
 	for(unsigned int i = 0; i < std::size(m_aNetClient); i++)
 		m_aNetClient[i].Close();
-
-	delete m_pEditor;
 
 	// shutdown text render while graphics are still available
 	m_pTextRender->Shutdown();
@@ -3972,7 +3926,6 @@ void CClient::OnWindowResize()
 {
 	TextRender()->OnPreWindowResize();
 	GameClient()->OnWindowResize();
-	m_pEditor->OnWindowResize();
 	TextRender()->OnWindowResize();
 }
 
@@ -4401,7 +4354,6 @@ int main(int argc, const char **argv)
 	INotifications *pNotifications = CreateNotifications();
 	pKernel->RegisterInterface(pNotifications);
 
-	pKernel->RegisterInterface(CreateEditor(), false);
 	pKernel->RegisterInterface(CreateFavorites().release());
 	pKernel->RegisterInterface(CreateGameClient());
 

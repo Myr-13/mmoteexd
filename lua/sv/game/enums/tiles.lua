@@ -24,7 +24,7 @@ TILE_SWITCH_CLAN = 149
 TILE_SWITCH_MOB = 150
 
 
-function IsSolid(x, y)
-	local ID = Game.Collision:GetTile(x, y)
+function IsSolid(WorldID, x, y)
+	local ID = Game.Collision(WorldID):GetTile(x, y)
 	return (ID == TILE_HOOK or ID == TILE_NOHOOK)
 end

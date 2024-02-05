@@ -6,10 +6,8 @@
 #include <game/gamecore.h>
 
 #include <vector>
-#include <unordered_map>
 
 class CEntity;
-class CLuaEntity;
 class CCharacter;
 
 /*
@@ -38,7 +36,6 @@ private:
 
 	CEntity *m_pNextTraverseEntity = nullptr;
 	CEntity *m_apFirstEntityTypes[NUM_ENTTYPES];
-	std::unordered_map<std::string, std::vector<CLuaEntity *>> m_vLuaEntities;
 
 	class CGameContext *m_pGameServer;
 	class CConfig *m_pConfig;
@@ -175,9 +172,6 @@ public:
 	CTuningParams *m_pTuningList;
 	CTuningParams *TuningList() { return m_pTuningList; }
 	CTuningParams *GetTuning(int i) { return &TuningList()[i]; }
-
-	/**/
-	void InsertLuaEntity(CLuaEntity *pEnt);
 };
 
 #endif

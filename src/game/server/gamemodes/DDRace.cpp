@@ -8,11 +8,10 @@
 #include <game/server/entities/character.h>
 #include <game/server/gamecontext.h>
 #include <game/server/player.h>
-#include <game/server/score.h>
 #include <game/version.h>
 
-#define GAME_TYPE_NAME "DDraceNetwork"
-#define TEST_TYPE_NAME "TestDDraceNetwork"
+#define GAME_TYPE_NAME "MMOTee"
+#define TEST_TYPE_NAME "MMOTee"
 
 CGameControllerDDRace::CGameControllerDDRace(class CGameContext *pGameServer) :
 	IGameController(pGameServer)
@@ -21,11 +20,6 @@ CGameControllerDDRace::CGameControllerDDRace(class CGameContext *pGameServer) :
 }
 
 CGameControllerDDRace::~CGameControllerDDRace() = default;
-
-CScore *CGameControllerDDRace::Score()
-{
-	return GameServer()->Score();
-}
 
 void CGameControllerDDRace::HandleCharacterTiles(CCharacter *pChr, int MapIndex)
 {
@@ -36,13 +30,6 @@ void CGameControllerDDRace::OnPlayerConnect(CPlayer *pPlayer)
 {
 	IGameController::OnPlayerConnect(pPlayer);
 	int ClientID = pPlayer->GetCID();
-
-	// init the player
-	Score()->PlayerData(ClientID)->Reset();
-
-	// Can't set score here as LoadScore() is threaded, run it in
-	// LoadScoreThreaded() instead
-	Score()->LoadPlayerData(ClientID);
 
 	if(!Server()->ClientPrevIngame(ClientID))
 	{
@@ -64,22 +51,16 @@ void CGameControllerDDRace::OnPlayerDisconnect(CPlayer *pPlayer, const char *pRe
 
 	if(!GameServer()->PlayerModerating() && WasModerator)
 		GameServer()->SendChat(-1, CGameContext::CHAT_ALL, "Server kick/spec votes are no longer actively moderated.");
-
-	if(g_Config.m_SvTeam != SV_TEAM_FORCED_SOLO)
-		Teams().SetForceCharacterTeam(ClientID, TEAM_FLOCK);
 }
 
 void CGameControllerDDRace::OnReset()
 {
 	IGameController::OnReset();
-	Teams().Reset();
 }
 
 void CGameControllerDDRace::Tick()
 {
 	IGameController::Tick();
-	Teams().ProcessSaveTeam();
-	Teams().Tick();
 }
 
 void CGameControllerDDRace::DoTeamChange(class CPlayer *pPlayer, int Team, bool DoChatMsg)
@@ -87,20 +68,6 @@ void CGameControllerDDRace::DoTeamChange(class CPlayer *pPlayer, int Team, bool 
 	Team = ClampTeam(Team);
 	if(Team == pPlayer->GetTeam())
 		return;
-
-	CCharacter *pCharacter = pPlayer->GetCharacter();
-
-	if(Team == TEAM_SPECTATORS)
-	{
-		if(g_Config.m_SvTeam != SV_TEAM_FORCED_SOLO && pCharacter)
-		{
-			// Joining spectators should not kill a locked team, but should still
-			// check if the team finished by you leaving it.
-			int DDRTeam = pCharacter->Team();
-			Teams().SetForceCharacterTeam(pPlayer->GetCID(), TEAM_FLOCK);
-			Teams().CheckTeamFinished(DDRTeam);
-		}
-	}
 
 	IGameController::DoTeamChange(pPlayer, Team, DoChatMsg);
 }

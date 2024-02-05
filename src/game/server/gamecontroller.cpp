@@ -4,7 +4,6 @@
 
 #include <game/generated/protocol.h>
 #include <game/mapitems.h>
-#include <game/server/score.h>
 #include <game/teamscore.h>
 
 #include "gamecontext.h"
@@ -12,15 +11,8 @@
 #include "player.h"
 
 #include "entities/character.h"
-#include "entities/door.h"
-#include "entities/dragger.h"
-#include "entities/gun.h"
-#include "entities/light.h"
-#include "entities/pickup.h"
-#include "entities/projectile.h"
 
-IGameController::IGameController(class CGameContext *pGameServer) :
-	m_Teams(pGameServer), m_pLoadBestTimeResult(nullptr)
+IGameController::IGameController(class CGameContext *pGameServer)
 {
 	m_pGameServer = pGameServer;
 	m_pConfig = m_pGameServer->Config();
@@ -92,16 +84,16 @@ void IGameController::DoActivityCheck()
 float IGameController::EvaluateSpawnPos(CSpawnEval *pEval, vec2 Pos, int DDTeam)
 {
 	float Score = 0.0f;
-	CCharacter *pC = static_cast<CCharacter *>(GameServer()->m_World.FindFirst(CGameWorld::ENTTYPE_CHARACTER));
-	for(; pC; pC = (CCharacter *)pC->TypeNext())
-	{
-		// ignore players in other teams
-		if(GameServer()->GetDDRaceTeam(pC->GetPlayer()->GetCID()) != DDTeam)
-			continue;
-
-		float d = distance(Pos, pC->m_Pos);
-		Score += d == 0 ? 1000000000.0f : 1.0f / d;
-	}
+//	CCharacter *pC = static_cast<CCharacter *>(GameServer()->m_World.FindFirst(CGameWorld::ENTTYPE_CHARACTER));
+//	for(; pC; pC = (CCharacter *)pC->TypeNext())
+//	{
+//		// ignore players in other teams
+//		if(GameServer()->GetDDRaceTeam(pC->GetPlayer()->GetCID()) != DDTeam)
+//			continue;
+//
+//		float d = distance(Pos, pC->m_Pos);
+//		Score += d == 0 ? 1000000000.0f : 1.0f / d;
+//	}
 
 	return Score;
 }
@@ -109,50 +101,50 @@ float IGameController::EvaluateSpawnPos(CSpawnEval *pEval, vec2 Pos, int DDTeam)
 void IGameController::EvaluateSpawnType(CSpawnEval *pEval, int Type, int DDTeam)
 {
 	// j == 0: Find an empty slot, j == 1: Take any slot if no empty one found
-	for(int j = 0; j < 2 && !pEval->m_Got; j++)
-	{
-		// get spawn point
-		for(const vec2 &SpawnPoint : m_avSpawnPoints[Type])
-		{
-			vec2 P = SpawnPoint;
-			if(j == 0)
-			{
-				// check if the position is occupado
-				CEntity *apEnts[MAX_CLIENTS];
-				int Num = GameServer()->m_World.FindEntities(SpawnPoint, 64, apEnts, MAX_CLIENTS, CGameWorld::ENTTYPE_CHARACTER);
-				vec2 aPositions[5] = {vec2(0.0f, 0.0f), vec2(-32.0f, 0.0f), vec2(0.0f, -32.0f), vec2(32.0f, 0.0f), vec2(0.0f, 32.0f)}; // start, left, up, right, down
-				int Result = -1;
-				for(int Index = 0; Index < 5 && Result == -1; ++Index)
-				{
-					Result = Index;
-					if(!GameServer()->m_World.m_Core.m_aTuning[0].m_PlayerCollision)
-						break;
-					for(int c = 0; c < Num; ++c)
-					{
-						CCharacter *pChr = static_cast<CCharacter *>(apEnts[c]);
-						if(GameServer()->Collision()->CheckPoint(SpawnPoint + aPositions[Index]) ||
-							distance(pChr->m_Pos, SpawnPoint + aPositions[Index]) <= pChr->GetProximityRadius())
-						{
-							Result = -1;
-							break;
-						}
-					}
-				}
-				if(Result == -1)
-					continue; // try next spawn point
-
-				P += aPositions[Result];
-			}
-
-			float S = EvaluateSpawnPos(pEval, P, DDTeam);
-			if(!pEval->m_Got || (j == 0 && pEval->m_Score > S))
-			{
-				pEval->m_Got = true;
-				pEval->m_Score = S;
-				pEval->m_Pos = P;
-			}
-		}
-	}
+//	for(int j = 0; j < 2 && !pEval->m_Got; j++)
+//	{
+//		// get spawn point
+//		for(const vec2 &SpawnPoint : m_avSpawnPoints[Type])
+//		{
+//			vec2 P = SpawnPoint;
+//			if(j == 0)
+//			{
+//				// check if the position is occupado
+//				CEntity *apEnts[MAX_CLIENTS];
+//				int Num = GameServer()->m_World.FindEntities(SpawnPoint, 64, apEnts, MAX_CLIENTS, CGameWorld::ENTTYPE_CHARACTER);
+//				vec2 aPositions[5] = {vec2(0.0f, 0.0f), vec2(-32.0f, 0.0f), vec2(0.0f, -32.0f), vec2(32.0f, 0.0f), vec2(0.0f, 32.0f)}; // start, left, up, right, down
+//				int Result = -1;
+//				for(int Index = 0; Index < 5 && Result == -1; ++Index)
+//				{
+//					Result = Index;
+//					if(!GameServer()->m_World.m_Core.m_aTuning[0].m_PlayerCollision)
+//						break;
+//					for(int c = 0; c < Num; ++c)
+//					{
+//						CCharacter *pChr = static_cast<CCharacter *>(apEnts[c]);
+//						if(GameServer()->Collision()->CheckPoint(SpawnPoint + aPositions[Index]) ||
+//							distance(pChr->m_Pos, SpawnPoint + aPositions[Index]) <= pChr->GetProximityRadius())
+//						{
+//							Result = -1;
+//							break;
+//						}
+//					}
+//				}
+//				if(Result == -1)
+//					continue; // try next spawn point
+//
+//				P += aPositions[Result];
+//			}
+//
+//			float S = EvaluateSpawnPos(pEval, P, DDTeam);
+//			if(!pEval->m_Got || (j == 0 && pEval->m_Score > S))
+//			{
+//				pEval->m_Got = true;
+//				pEval->m_Score = S;
+//				pEval->m_Pos = P;
+//			}
+//		}
+//	}
 }
 
 bool IGameController::CanSpawn(int Team, vec2 *pOutPos, int DDTeam)
@@ -161,45 +153,41 @@ bool IGameController::CanSpawn(int Team, vec2 *pOutPos, int DDTeam)
 	if(Team == TEAM_SPECTATORS)
 		return false;
 
-	CSpawnEval Eval;
-	EvaluateSpawnType(&Eval, 0, DDTeam);
-	EvaluateSpawnType(&Eval, 1, DDTeam);
-	EvaluateSpawnType(&Eval, 2, DDTeam);
+//	CSpawnEval Eval;
+//	EvaluateSpawnType(&Eval, 0, DDTeam);
+//	EvaluateSpawnType(&Eval, 1, DDTeam);
+//	EvaluateSpawnType(&Eval, 2, DDTeam);
+//
+//	*pOutPos = Eval.m_Pos;
 
-	*pOutPos = Eval.m_Pos;
-	return Eval.m_Got;
+	if(m_avSpawnPoints[0].empty())
+		return false;
+
+	*pOutPos = m_avSpawnPoints[0][rand() % m_avSpawnPoints[0].size()];
+
+	return true;
 }
 
-bool IGameController::OnEntity(int Index, int x, int y, int Layer, int Flags, bool Initial, int Number)
+bool IGameController::OnEntity(int Index, int x, int y, int Layer, int Flags, bool Initial, int WorldID, int Number)
 {
 	dbg_assert(Index >= 0, "Invalid entity index");
 
 	const vec2 Pos(x * 32.0f + 16.0f, y * 32.0f + 16.0f);
 
 	int aSides[8];
-	aSides[0] = GameServer()->Collision()->Entity(x, y + 1, Layer);
-	aSides[1] = GameServer()->Collision()->Entity(x + 1, y + 1, Layer);
-	aSides[2] = GameServer()->Collision()->Entity(x + 1, y, Layer);
-	aSides[3] = GameServer()->Collision()->Entity(x + 1, y - 1, Layer);
-	aSides[4] = GameServer()->Collision()->Entity(x, y - 1, Layer);
-	aSides[5] = GameServer()->Collision()->Entity(x - 1, y - 1, Layer);
-	aSides[6] = GameServer()->Collision()->Entity(x - 1, y, Layer);
-	aSides[7] = GameServer()->Collision()->Entity(x - 1, y + 1, Layer);
+	aSides[0] = GameServer()->Collision(WorldID)->Entity(x, y + 1, Layer);
+	aSides[1] = GameServer()->Collision(WorldID)->Entity(x + 1, y + 1, Layer);
+	aSides[2] = GameServer()->Collision(WorldID)->Entity(x + 1, y, Layer);
+	aSides[3] = GameServer()->Collision(WorldID)->Entity(x + 1, y - 1, Layer);
+	aSides[4] = GameServer()->Collision(WorldID)->Entity(x, y - 1, Layer);
+	aSides[5] = GameServer()->Collision(WorldID)->Entity(x - 1, y - 1, Layer);
+	aSides[6] = GameServer()->Collision(WorldID)->Entity(x - 1, y, Layer);
+	aSides[7] = GameServer()->Collision(WorldID)->Entity(x - 1, y + 1, Layer);
 
 	if(Index >= ENTITY_SPAWN && Index <= ENTITY_SPAWN_BLUE && Initial)
 	{
 		const int Type = Index - ENTITY_SPAWN;
 		m_avSpawnPoints[Type].push_back(Pos);
-	}
-
-	int Type = -1;
-	int SubType = 0;
-
-	if(Type != -1) // NOLINT(clang-analyzer-unix.Malloc)
-	{
-		CPickup *pPickup = new CPickup(&GameServer()->m_World, Type, SubType, Layer, Number);
-		pPickup->m_Pos = Pos;
-		return true; // NOLINT(clang-analyzer-unix.Malloc)
 	}
 
 	return false;
@@ -241,14 +229,12 @@ void IGameController::EndRound()
 	if(m_Warmup) // game can't end when we are running warmup
 		return;
 
-	GameServer()->m_World.m_Paused = true;
 	m_GameOverTick = Server()->Tick();
 	m_SuddenDeath = 0;
 }
 
 void IGameController::ResetGame()
 {
-	GameServer()->m_World.m_ResetRequested = true;
 }
 
 const char *IGameController::GetTeamName(int Team)
@@ -265,7 +251,6 @@ void IGameController::StartRound()
 	m_RoundStartTick = Server()->Tick();
 	m_SuddenDeath = 0;
 	m_GameOverTick = -1;
-	GameServer()->m_World.m_Paused = false;
 	m_ForceBalanced = false;
 	Server()->DemoRecorder_HandleAutoStart();
 	char aBuf[256];
@@ -292,9 +277,6 @@ int IGameController::OnCharacterDeath(class CCharacter *pVictim, class CPlayer *
 
 void IGameController::OnCharacterSpawn(class CCharacter *pChr)
 {
-	pChr->SetTeams(&Teams());
-	Teams().OnCharacterSpawn(pChr->GetPlayer()->GetCID());
-
 	// default health
 	pChr->IncreaseHealth(10);
 
@@ -344,23 +326,6 @@ void IGameController::Tick()
 		}
 	}
 
-	if(m_pLoadBestTimeResult != nullptr && m_pLoadBestTimeResult->m_Completed)
-	{
-		if(m_pLoadBestTimeResult->m_Success)
-		{
-			m_CurrentRecord = m_pLoadBestTimeResult->m_CurrentRecord;
-
-			for(int i = 0; i < MAX_CLIENTS; i++)
-			{
-				if(GameServer()->m_apPlayers[i] && GameServer()->m_apPlayers[i]->GetClientVersion() >= VERSION_DDRACE)
-				{
-					GameServer()->SendRecord(i);
-				}
-			}
-		}
-		m_pLoadBestTimeResult = nullptr;
-	}
-
 	DoActivityCheck();
 }
 
@@ -376,8 +341,6 @@ void IGameController::Snap(int SnappingClient)
 		pGameInfoObj->m_GameStateFlags |= GAMESTATEFLAG_GAMEOVER;
 	if(m_SuddenDeath)
 		pGameInfoObj->m_GameStateFlags |= GAMESTATEFLAG_SUDDENDEATH;
-	if(GameServer()->m_World.m_Paused)
-		pGameInfoObj->m_GameStateFlags |= GAMESTATEFLAG_PAUSED;
 	pGameInfoObj->m_RoundStartTick = m_RoundStartTick;
 	pGameInfoObj->m_WarmupTimer = m_Warmup;
 
@@ -438,8 +401,6 @@ void IGameController::Snap(int SnappingClient)
 			pGameData->m_GameStateFlags |= protocol7::GAMESTATEFLAG_GAMEOVER;
 		if(m_SuddenDeath)
 			pGameData->m_GameStateFlags |= protocol7::GAMESTATEFLAG_SUDDENDEATH;
-		if(GameServer()->m_World.m_Paused)
-			pGameData->m_GameStateFlags |= protocol7::GAMESTATEFLAG_PAUSED;
 
 		pGameData->m_GameStateEndTick = 0;
 
@@ -451,8 +412,6 @@ void IGameController::Snap(int SnappingClient)
 		pRaceData->m_Precision = 2;
 		pRaceData->m_RaceFlags = protocol7::RACEFLAG_HIDE_KILLMSG | protocol7::RACEFLAG_KEEP_WANTED_WEAPON;
 	}
-
-	GameServer()->SnapSwitchers(SnappingClient);
 }
 
 int IGameController::GetAutoTeam(int NotThisID)
@@ -515,8 +474,7 @@ CClientMask IGameController::GetMaskForPlayerWorldEvent(int Asker, int ExceptID)
 {
 	if(Asker == -1)
 		return CClientMask().set().reset(ExceptID);
-
-	return Teams().TeamMask(GameServer()->GetDDRaceTeam(Asker), ExceptID, Asker);
+	return CClientMask().set().reset();
 }
 
 void IGameController::InitTeleporter()

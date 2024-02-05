@@ -6,7 +6,6 @@
 
 #include <engine/client/checksum.h>
 #include <engine/demo.h>
-#include <engine/editor.h>
 #include <engine/engine.h>
 #include <engine/favorites.h>
 #include <engine/friends.h>
@@ -93,7 +92,6 @@ void CGameClient::OnConsoleInit()
 	m_pStorage = Kernel()->RequestInterface<IStorage>();
 	m_pDemoPlayer = Kernel()->RequestInterface<IDemoPlayer>();
 	m_pServerBrowser = Kernel()->RequestInterface<IServerBrowser>();
-	m_pEditor = Kernel()->RequestInterface<IEditor>();
 	m_pFavorites = Kernel()->RequestInterface<IFavorites>();
 	m_pFriends = Kernel()->RequestInterface<IFriends>();
 	m_pFoes = Client()->Foes();
@@ -578,9 +576,6 @@ void CGameClient::OnReset()
 	m_LastDummyConnected = false;
 
 	m_ReceivedDDNetPlayer = false;
-
-	Editor()->ResetMentions();
-	Editor()->ResetIngameMoved();
 }
 
 void CGameClient::UpdatePositions()
@@ -1650,15 +1645,6 @@ void CGameClient::OnNewSnapshot()
 					}
 				}
 
-				// update switch types
-				for(auto &Switcher : Switchers())
-				{
-					if(Switcher.m_aStatus[Team])
-						Switcher.m_aType[Team] = Switcher.m_aEndTick[Team] ? TILE_SWITCHTIMEDOPEN : TILE_SWITCHOPEN;
-					else
-						Switcher.m_aType[Team] = Switcher.m_aEndTick[Team] ? TILE_SWITCHTIMEDCLOSE : TILE_SWITCHCLOSE;
-				}
-
 				if(!GotSwitchStateTeam)
 					m_aSwitchStateTeam[g_Config.m_ClDummy] = Team;
 				else
@@ -1915,10 +1901,6 @@ void CGameClient::UpdateEditorIngameMoved()
 	else if(m_EditorMovementDelay > 0 && !LocalCharacterMoved)
 	{
 		--m_EditorMovementDelay;
-	}
-	if(m_EditorMovementDelay == 0 && LocalCharacterMoved)
-	{
-		Editor()->OnIngameMoved();
 	}
 }
 

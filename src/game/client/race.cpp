@@ -74,24 +74,6 @@ bool CRaceHelper::IsStart(CGameClient *pClient, vec2 Prev, vec2 Pos)
 		int EnemyTeam = pClient->m_aClients[pClient->m_Snap.m_LocalClientID].m_Team ^ 1;
 		return ms_aFlagIndex[EnemyTeam] != -1 && distance(Pos, pCollision->GetPos(ms_aFlagIndex[EnemyTeam])) < 32;
 	}
-	else
-	{
-		std::vector<int> vIndices = pCollision->GetMapIndices(Prev, Pos);
-		if(!vIndices.empty())
-			for(int &Indice : vIndices)
-			{
-				if(pCollision->GetTileIndex(Indice) == TILE_START)
-					return true;
-				if(pCollision->GetFTileIndex(Indice) == TILE_START)
-					return true;
-			}
-		else
-		{
-			if(pCollision->GetTileIndex(pCollision->GetPureMapIndex(Pos)) == TILE_START)
-				return true;
-			if(pCollision->GetFTileIndex(pCollision->GetPureMapIndex(Pos)) == TILE_START)
-				return true;
-		}
-	}
+
 	return false;
 }

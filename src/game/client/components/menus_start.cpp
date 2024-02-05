@@ -112,7 +112,7 @@ void CMenus::RenderStartMenu(CUIRect MainView)
 	bool UsedEscape = false;
 	if(DoButton_Menu(&s_QuitButton, Localize("Quit"), 0, &Button, 0, IGraphics::CORNER_ALL, Rounding, 0.5f, ColorRGBA(0.0f, 0.0f, 0.0f, 0.25f)) || (UsedEscape = UI()->ConsumeHotkey(CUI::HOTKEY_ESCAPE)) || CheckHotKey(KEY_Q))
 	{
-		if(UsedEscape || m_pClient->Editor()->HasUnsavedData() || (Client()->GetCurrentRaceTime() / 60 >= g_Config.m_ClConfirmQuitTime && g_Config.m_ClConfirmQuitTime >= 0))
+		if(UsedEscape || (Client()->GetCurrentRaceTime() / 60 >= g_Config.m_ClConfirmQuitTime && g_Config.m_ClConfirmQuitTime >= 0))
 		{
 			m_Popup = POPUP_QUIT;
 		}
@@ -159,23 +159,6 @@ void CMenus::RenderStartMenu(CUIRect MainView)
 				Client()->AddWarning(SWarning(Localize("Server executable not found, can't run server")));
 			}
 		}
-	}
-
-	static bool EditorHotkeyWasPressed = true;
-	static float EditorHotKeyChecktime = 0.0f;
-	Menu.HSplitBottom(5.0f, &Menu, 0); // little space
-	Menu.HSplitBottom(40.0f, &Menu, &Button);
-	static CButtonContainer s_MapEditorButton;
-	if(DoButton_Menu(&s_MapEditorButton, Localize("Editor"), 0, &Button, g_Config.m_ClShowStartMenuImages ? "editor" : 0, IGraphics::CORNER_ALL, Rounding, 0.5f, m_pClient->Editor()->HasUnsavedData() ? ColorRGBA(0.0f, 1.0f, 0.0f, 0.25f) : ColorRGBA(0.0f, 0.0f, 0.0f, 0.25f)) || (!EditorHotkeyWasPressed && Client()->LocalTime() - EditorHotKeyChecktime < 0.1f && CheckHotKey(KEY_E)))
-	{
-		g_Config.m_ClEditor = 1;
-		Input()->MouseModeRelative();
-		EditorHotkeyWasPressed = true;
-	}
-	if(!Input()->KeyIsPressed(KEY_E))
-	{
-		EditorHotkeyWasPressed = false;
-		EditorHotKeyChecktime = Client()->LocalTime();
 	}
 
 	Menu.HSplitBottom(5.0f, &Menu, 0); // little space

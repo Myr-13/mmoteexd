@@ -3,11 +3,13 @@ EntityManager.Register("pickup", {
 	SnapID = 0,
 	TargetID = -1,
 	Speed = 10,
+	WorldID = 0,
 
-	OnInit = function(self, Pos, CID)
+	OnInit = function(self, Pos, WorldID, CID)
 		self.Pos = copy_vector(Pos)
 		self.SnapID = Game.Server:SnapNewID()
 		self.TargetID = CID
+		self.WorldID = WorldID
 	end,
 
 	OnTick = function(self)
@@ -35,7 +37,7 @@ EntityManager.Register("pickup", {
 	end,
 
 	OnSnap = function(self, ClientID)
-		if Game.GameServer:NetworkClipped(ClientID, self.Pos) then
+		if self:NetworkClipped(ClientID) then
 			return
 		end
 

@@ -25,6 +25,7 @@ class CLayers
 public:
 	CLayers();
 	void Init(IKernel *pKernel);
+	void InitNoKernel(IMap *pMap);
 	void InitBackground(IMap *pMap);
 	int NumGroups() const { return m_GroupsNum; }
 	int NumLayers() const { return m_LayersNum; }

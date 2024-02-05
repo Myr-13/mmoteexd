@@ -3,6 +3,15 @@ EntityManager._Entities = {}
 
 
 EntityManager.Register = function(Type, Data)
+	Data.NetworkClipped = function(self, ClientID)
+		local Ply = Game.Players(ClientID)
+		if not Ply then
+			return true
+		end
+
+		return self.WorldID ~= Ply.WorldID or Game.GameServer:NetworkClipped(ClientID, self.Pos)
+	end
+
 	EntityManager._Entities[Type] = Data
 end
 

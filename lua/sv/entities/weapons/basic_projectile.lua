@@ -6,21 +6,23 @@ EntityManager.Register("basic_projectile", {
 	OwnerID = -1,
 	MarkedToRemove = false,
 	Damage = 0,
+	WorldID = 0,
 
-	OnInit = function(self, Pos, Dir, OwnerID, DamageType, Damage)
+	OnInit = function(self, Pos, WorldID, Dir, OwnerID, DamageType, Damage)
 		self.Pos = copy_vector(Pos)
 		self.Dir = copy_vector(Dir) * vec2(17, 17)
 		self.SnapID = Game.Server:SnapNewID()
 		self.OwnerID = OwnerID
 		self.DamageType = DamageType
 		self.Damage = Damage
+		self.WorldID = WorldID
 	end,
 
 	OnTick = function(self)
 		self.Pos = self.Pos + self.Dir
 
 		-- Check for walls
-		if Game.Collision:IntersectLine(self.Pos, self.Pos + self.Dir, nil, nil) ~= TILE_AIR then
+		if Game.Collision(self.WorldID):IntersectLine(self.Pos, self.Pos + self.Dir, nil, nil) ~= TILE_AIR then
 			self.MarkedToRemove = true
 			return
 		end
@@ -47,6 +49,10 @@ EntityManager.Register("basic_projectile", {
 	end,
 
 	OnSnap = function(self, ClientID)
+		if self:NetworkClipped(ClientID) then
+			return
+		end
+
 		local Item = Game.Server:SnapNewItemLaser(self.SnapID)
 
 		Item.ToX = math.floor(self.Pos.x)

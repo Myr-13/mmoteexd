@@ -4,9 +4,7 @@
 #define GAME_SERVER_ENTITIES_CHARACTER_H
 
 #include <game/server/entity.h>
-#include <game/server/save.h>
 
-class CGameTeams;
 class CGameWorld;
 class IAntibot;
 struct CAntibotCharacterData;
@@ -26,10 +24,8 @@ class CCharacter : public CEntity
 {
 	MACRO_ALLOC_POOL_ID()
 
-	friend class CSaveTee; // need to use core
-
 public:
-	CCharacter(CGameWorld *pWorld, CNetObj_PlayerInput LastInput);
+	CCharacter(CGameWorld *pWorld, int WorldID, CNetObj_PlayerInput LastInput);
 
 	void Reset() override;
 	void Destroy() override;
@@ -135,7 +131,6 @@ public:
 
 	// the player core for the physics
 	CCharacterCore m_Core;
-	CGameTeams *m_pTeams = nullptr;
 
 private:
 
@@ -166,11 +161,8 @@ private:
 	IAntibot *Antibot();
 
 	bool m_SetSavePos;
-	CSaveTee m_RescueTee;
 
 public:
-	CGameTeams *Teams() { return m_pTeams; }
-	void SetTeams(CGameTeams *pTeams);
 	void SetTeleports(std::map<int, std::vector<vec2>> *pTeleOuts, std::map<int, std::vector<vec2>> *pTeleCheckOuts);
 
 	void FillAntibot(CAntibotCharacterData *pData);
@@ -251,7 +243,7 @@ public:
 
 	bool IsSuper() { return m_Core.m_Super; }
 
-	CSaveTee &GetRescueTeeRef() { return m_RescueTee; }
+	int WorldID() const;
 };
 
 enum

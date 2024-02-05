@@ -5,6 +5,7 @@ EntityManager.Register("work_item", {
 	BreakProgress = 0,
 	SpawnTick = 0,
 	Alive = false,
+	WorldID = 0,
 
 	Damage = function(self, CID, Dmg)
 		self.BreakProgress = self.BreakProgress + Dmg
@@ -33,10 +34,11 @@ EntityManager.Register("work_item", {
 		Player.SendBroadcast(CID, "[%s]\n%s work", Utils.GetProgressBar(10, "═", "  ", self.BreakProgress, 100), GetWorkName(self.WorkID))
 	end,
 
-	OnInit = function(self, Pos, WorkID)
+	OnInit = function(self, Pos, WorldID, WorkID)
 		self.Pos = copy_vector(Pos)
 		self.SnapID = Game.Server:SnapNewID()
 		self.WorkID = WorkID
+		self.WorldID = WorldID
 	end,
 
 	OnTick = function(self)
@@ -49,7 +51,7 @@ EntityManager.Register("work_item", {
 	end,
 
 	OnSnap = function(self, ClientID)
-		if Game.GameServer:NetworkClipped(ClientID, self.Pos) then
+		if self:NetworkClipped(ClientID) then
 			return
 		end
 

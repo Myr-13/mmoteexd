@@ -14,7 +14,6 @@
 #include <engine/client/ghost.h>
 #include <engine/client/serverbrowser.h>
 #include <engine/client/updater.h>
-#include <engine/editor.h>
 #include <engine/graphics.h>
 #include <engine/shared/config.h>
 #include <engine/shared/demo.h>
@@ -63,7 +62,6 @@ class CClient : public IClient, public CDemoPlayer::IListener
 	CConfig *m_pConfig = nullptr;
 	IConsole *m_pConsole = nullptr;
 	IDiscord *m_pDiscord = nullptr;
-	IEditor *m_pEditor = nullptr;
 	IEngine *m_pEngine = nullptr;
 	IFavorites *m_pFavorites = nullptr;
 	IGameClient *m_pGameClient = nullptr;
@@ -489,7 +487,7 @@ public:
 	void DemoSlice(const char *pDstPath, CLIENTFUNC_FILTER pfnFilter, void *pUser) override;
 	virtual void SaveReplay(int Length, const char *pFilename = "");
 
-	bool EditorHasUnsavedData() const override { return m_pEditor->HasUnsavedData(); }
+	bool EditorHasUnsavedData() const override { return false; }
 
 	IFriends *Foes() override { return &m_Foes; }
 

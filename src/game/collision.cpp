@@ -84,9 +84,6 @@ void CCollision::Init(class CLayers *pLayers)
 		unsigned int Size = m_pLayers->Map()->GetDataSize(m_pLayers->SwitchLayer()->m_Switch);
 		if(Size >= (size_t)m_Width * m_Height * sizeof(CSwitchTile))
 			m_pSwitch = static_cast<CSwitchTile *>(m_pLayers->Map()->GetData(m_pLayers->SwitchLayer()->m_Switch));
-
-		m_pDoor = new CDoorTile[m_Width * m_Height];
-		mem_zero(m_pDoor, (size_t)m_Width * m_Height * sizeof(CDoorTile));
 	}
 	else
 	{
@@ -114,11 +111,6 @@ void CCollision::Init(class CLayers *pLayers)
 		{
 			if(m_pSwitch[i].m_Number > m_HighestSwitchNumber)
 				m_HighestSwitchNumber = m_pSwitch[i].m_Number;
-
-			if(m_pSwitch[i].m_Number)
-				m_pDoor[i].m_Number = m_pSwitch[i].m_Number;
-			else
-				m_pDoor[i].m_Number = 0;
 		}
 	}
 }
@@ -508,7 +500,6 @@ void CCollision::MoveBox(vec2 *pInoutPos, vec2 *pInoutVel, vec2 Size, vec2 Elast
 
 void CCollision::Dest()
 {
-	delete[] m_pDoor;
 	m_pTiles = 0;
 	m_Width = 0;
 	m_Height = 0;

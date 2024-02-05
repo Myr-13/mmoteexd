@@ -19,6 +19,7 @@
 #include "gameworld.h"
 #include "teehistorian.h"
 
+#include <game/server/mmo/multiworld_manager.h>
 #include <memory>
 #include <string>
 
@@ -54,7 +55,6 @@ class IConfigManager;
 class CConfig;
 class CHeap;
 class CPlayer;
-class CScore;
 class CUnpacker;
 class IAntibot;
 class IGameController;
@@ -87,8 +87,6 @@ class CGameContext : public IGameServer
 	IEngine *m_pEngine;
 	IStorage *m_pStorage;
 	IAntibot *m_pAntibot;
-	CLayers m_Layers;
-	CCollision m_Collision;
 	protocol7::CNetObjHandler m_NetObjHandler7;
 	CNetObjHandler m_NetObjHandler;
 	CTuningParams m_Tuning;
@@ -166,7 +164,6 @@ public:
 	IConsole *Console() { return m_pConsole; }
 	IEngine *Engine() { return m_pEngine; }
 	IStorage *Storage() { return m_pStorage; }
-	CCollision *Collision() { return &m_Collision; }
 	CTuningParams *Tuning() { return &m_Tuning; }
 	CTuningParams *TuningList() { return &m_aTuningList[0]; }
 	IAntibot *Antibot() { return m_pAntibot; }
@@ -190,12 +187,10 @@ public:
 	CNetObj_PlayerInput GetLastPlayerInput(int ClientID) const;
 
 	IGameController *m_pController;
-	CGameWorld m_World;
 
 	// helper functions
 	class CCharacter *GetPlayerChar(int ClientID);
 	bool EmulateBug(int Bug);
-	std::vector<SSwitchers> &Switchers() { return m_World.m_Core.m_vSwitchers; }
 
 	// voting
 	void StartVote(const char *pDesc, const char *pCommand, const char *pReason, const char *pSixupDesc);
@@ -218,7 +213,7 @@ public:
 	char m_aaZoneEnterMsg[NUM_TUNEZONES][256]; // 0 is used for switching from or to area without tunings
 	char m_aaZoneLeaveMsg[NUM_TUNEZONES][256];
 
-	void CreateAllEntities(bool Initial);
+	void CreateAllEntities(int WorldID, bool Initial);
 
 	char m_aDeleteTempfile[128];
 	void DeleteTempfile();
@@ -243,7 +238,6 @@ public:
 	void CreateSound(vec2 Pos, int Sound, CClientMask Mask = CClientMask().set());
 	void CreateSoundGlobal(int Sound, int Target = -1) const;
 
-	void SnapSwitchers(int SnappingClient);
 	bool SnapLaserObject(const CSnapContext &Context, int SnapID, const vec2 &To, const vec2 &From, int StartTick, int Owner = -1, int LaserType = -1, int Subtype = -1, int SwitchNumber = -1) const;
 	bool SnapPickup(const CSnapContext &Context, int SnapID, const vec2 &Pos, int Type, int SubType, int SwitchNumber) const;
 
@@ -360,13 +354,10 @@ public:
 
 	void OnUpdatePlayerServerInfo(char *aBuf, int BufSize, int ID) override;
 
-	std::shared_ptr<CScoreRandomMapResult> m_SqlRandomMapResult;
-
 private:
 	// starting 1 to make 0 the special value "no client id"
 	uint32_t NextUniqueClientID = 1;
 	bool m_VoteWillPass;
-	CScore *m_pScore;
 
 	// DDRace Console Commands
 
@@ -534,9 +525,6 @@ private:
 	void LogEvent(const char *Description, int ClientID);
 
 public:
-	CLayers *Layers() { return &m_Layers; }
-	CScore *Score() { return m_pScore; }
-
 	enum
 	{
 		VOTE_ENFORCE_NO_ADMIN = VOTE_ENFORCE_YES + 1,
@@ -562,6 +550,10 @@ public:
 	// MMOTee
 	CLuaManager m_LuaManager;
 	CSQLite m_DB;
+	CMultiWorldManager m_MultiWorldManager;
+
+	CCollision *Collision(int WorldID);
+	CGameWorld *GameWorld(int WorldID);
 
 	std::vector<std::string> m_vClientFiles;
 
@@ -571,8 +563,6 @@ public:
 	int m_aBotSnapIDs[MAX_CLIENTS];
 	void ClearBotSnapIDs();
 	int GetNextBotSnapID(int ClientID);
-	void CreateDummy(vec2 Pos, const char *pLuaFile);
-	void CreateEntity(vec2 Pos, const char *pType, const char *pLuaFile);
 
 	// Lua
 	void SendLuaFiles(int ClientID);

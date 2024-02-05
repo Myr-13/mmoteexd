@@ -567,8 +567,6 @@ void CMapLayers::OnMapLoad()
 										if(CurOverlay == 0)
 										{
 											Flags = ((CSwitchTile *)pTiles)[y * pTMap->m_Width + x].m_Flags;
-											if(Index == TILE_SWITCHTIMEDOPEN)
-												Index = 8;
 										}
 										else if(CurOverlay == 1)
 											Index = ((CSwitchTile *)pTiles)[y * pTMap->m_Width + x].m_Number;

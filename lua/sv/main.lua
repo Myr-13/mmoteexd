@@ -36,6 +36,7 @@ include("sv/game/spells.lua")
 include("sv/game/stats.lua")
 include("sv/game/votes.lua")
 include("sv/game/works.lua")
+include("sv/game/worlds.lua")
 
 -- Entities
 include("sv/entities/dummies/dummy_base.lua")
@@ -70,6 +71,7 @@ RegisterHook("OnSnap")
 RegisterHook("OnCharacterFireWeapon")
 RegisterHook("OnCharacterInput")
 RegisterHook("OnInit")
+RegisterHook("OnWorldLoaded")
 
 Hook.Add("OnPostPlayerLeft", "ClearPlayerData", function(CID)
 	Player.ClearData(CID)

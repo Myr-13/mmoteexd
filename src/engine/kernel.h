@@ -10,12 +10,12 @@ class IInterface
 {
 	// friend with the kernel implementation
 	friend class CKernel;
-	IKernel *m_pKernel;
-
-protected:
-	IKernel *Kernel() { return m_pKernel; }
 
 public:
+	IKernel *m_pKernel;
+
+	IKernel *Kernel() { return m_pKernel; }
+
 	IInterface() :
 		m_pKernel(nullptr) {}
 	virtual void Shutdown() {}

@@ -8,14 +8,15 @@
 //////////////////////////////////////////////////
 // Entity
 //////////////////////////////////////////////////
-CEntity::CEntity(CGameWorld *pGameWorld, int ObjType, vec2 Pos, int ProximityRadius)
+CEntity::CEntity(CGameWorld *pGameWorld, int ObjType, int WorldID, vec2 Pos, int ProximityRadius)
 {
 	m_pGameWorld = pGameWorld;
-	m_pCCollision = GameServer()->Collision();
+	m_pCCollision = GameServer()->Collision(WorldID);
 
 	m_ObjType = ObjType;
 	m_Pos = Pos;
 	m_ProximityRadius = ProximityRadius;
+	m_WorldID = WorldID;
 
 	m_MarkedForDestroy = false;
 	m_ID = Server()->SnapNewID();
@@ -47,13 +48,13 @@ bool CEntity::NetworkClippedLine(int SnappingClient, vec2 StartPos, vec2 EndPos)
 
 bool CEntity::GameLayerClipped(vec2 CheckPos)
 {
-	return round_to_int(CheckPos.x) / 32 < -200 || round_to_int(CheckPos.x) / 32 > GameServer()->Collision()->GetWidth() + 200 ||
-	       round_to_int(CheckPos.y) / 32 < -200 || round_to_int(CheckPos.y) / 32 > GameServer()->Collision()->GetHeight() + 200;
+	return round_to_int(CheckPos.x) / 32 < -200 || round_to_int(CheckPos.x) / 32 > GameServer()->Collision(m_WorldID)->GetWidth() + 200 ||
+	       round_to_int(CheckPos.y) / 32 < -200 || round_to_int(CheckPos.y) / 32 > GameServer()->Collision(m_WorldID)->GetHeight() + 200;
 }
 
 bool CEntity::GetNearestAirPos(vec2 Pos, vec2 PrevPos, vec2 *pOutPos)
 {
-	for(int k = 0; k < 16 && GameServer()->Collision()->CheckPoint(Pos); k++)
+	for(int k = 0; k < 16 && GameServer()->Collision(m_WorldID)->CheckPoint(Pos); k++)
 	{
 		Pos -= normalize(PrevPos - Pos);
 	}
@@ -62,16 +63,16 @@ bool CEntity::GetNearestAirPos(vec2 Pos, vec2 PrevPos, vec2 *pOutPos)
 	vec2 BlockCenter = vec2(round_to_int(Pos.x), round_to_int(Pos.y)) - PosInBlock + vec2(16.0f, 16.0f);
 
 	*pOutPos = vec2(BlockCenter.x + (PosInBlock.x < 16 ? -2.0f : 1.0f), Pos.y);
-	if(!GameServer()->Collision()->TestBox(*pOutPos, CCharacterCore::PhysicalSizeVec2()))
+	if(!GameServer()->Collision(m_WorldID)->TestBox(*pOutPos, CCharacterCore::PhysicalSizeVec2()))
 		return true;
 
 	*pOutPos = vec2(Pos.x, BlockCenter.y + (PosInBlock.y < 16 ? -2.0f : 1.0f));
-	if(!GameServer()->Collision()->TestBox(*pOutPos, CCharacterCore::PhysicalSizeVec2()))
+	if(!GameServer()->Collision(m_WorldID)->TestBox(*pOutPos, CCharacterCore::PhysicalSizeVec2()))
 		return true;
 
 	*pOutPos = vec2(BlockCenter.x + (PosInBlock.x < 16 ? -2.0f : 1.0f),
 		BlockCenter.y + (PosInBlock.y < 16 ? -2.0f : 1.0f));
-	return !GameServer()->Collision()->TestBox(*pOutPos, CCharacterCore::PhysicalSizeVec2());
+	return !GameServer()->Collision(m_WorldID)->TestBox(*pOutPos, CCharacterCore::PhysicalSizeVec2());
 }
 
 bool CEntity::GetNearestAirPosPlayer(vec2 PlayerPos, vec2 *pOutPos)
@@ -79,7 +80,7 @@ bool CEntity::GetNearestAirPosPlayer(vec2 PlayerPos, vec2 *pOutPos)
 	for(int dist = 5; dist >= -1; dist--)
 	{
 		*pOutPos = vec2(PlayerPos.x, PlayerPos.y - dist);
-		if(!GameServer()->Collision()->TestBox(*pOutPos, CCharacterCore::PhysicalSizeVec2()))
+		if(!GameServer()->Collision(m_WorldID)->TestBox(*pOutPos, CCharacterCore::PhysicalSizeVec2()))
 		{
 			return true;
 		}
