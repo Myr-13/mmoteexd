@@ -1412,19 +1412,7 @@ void CCharacter::HandleTiles(int Index)
 				return;
 			}
 		}
-		// if no checkpointout have been found (or if there no recorded checkpoint), teleport to start
-		vec2 SpawnPos;
-		if(GameServer()->m_pController->CanSpawn(m_pPlayer->GetTeam(), &SpawnPos, GameServer()->GetDDRaceTeam(GetPlayer()->GetCID())))
-		{
-			m_Core.m_Pos = SpawnPos;
-			m_Core.m_Vel = vec2(0, 0);
 
-			if(!g_Config.m_SvTeleportHoldHook)
-			{
-				ResetHook();
-				GameWorld()->ReleaseHooked(GetPlayer()->GetCID());
-			}
-		}
 		return;
 	}
 	if(Collision()->IsCheckTeleport(MapIndex))
@@ -1447,17 +1435,7 @@ void CCharacter::HandleTiles(int Index)
 				return;
 			}
 		}
-		// if no checkpointout have been found (or if there no recorded checkpoint), teleport to start
-		vec2 SpawnPos;
-		if(GameServer()->m_pController->CanSpawn(m_pPlayer->GetTeam(), &SpawnPos, GameServer()->GetDDRaceTeam(GetPlayer()->GetCID())))
-		{
-			m_Core.m_Pos = SpawnPos;
 
-			if(!g_Config.m_SvTeleportHoldHook)
-			{
-				ResetHook();
-			}
-		}
 		return;
 	}
 }

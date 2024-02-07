@@ -147,7 +147,7 @@ void IGameController::EvaluateSpawnType(CSpawnEval *pEval, int Type, int DDTeam)
 //	}
 }
 
-bool IGameController::CanSpawn(int Team, vec2 *pOutPos, int DDTeam)
+bool IGameController::CanSpawn(int Team, vec2 *pOutPos, int DDTeam, int WorldID)
 {
 	// spectators can't spawn
 	if(Team == TEAM_SPECTATORS)
@@ -160,10 +160,10 @@ bool IGameController::CanSpawn(int Team, vec2 *pOutPos, int DDTeam)
 //
 //	*pOutPos = Eval.m_Pos;
 
-	if(m_avSpawnPoints[0].empty())
+	if(m_avSpawnPoints[WorldID].empty())
 		return false;
 
-	*pOutPos = m_avSpawnPoints[0][rand() % m_avSpawnPoints[0].size()];
+	*pOutPos = m_avSpawnPoints[WorldID][rand() % m_avSpawnPoints[WorldID].size()];
 
 	return true;
 }
@@ -185,10 +185,7 @@ bool IGameController::OnEntity(int Index, int x, int y, int Layer, int Flags, bo
 	aSides[7] = GameServer()->Collision(WorldID)->Entity(x - 1, y + 1, Layer);
 
 	if(Index >= ENTITY_SPAWN && Index <= ENTITY_SPAWN_BLUE && Initial)
-	{
-		const int Type = Index - ENTITY_SPAWN;
-		m_avSpawnPoints[Type].push_back(Pos);
-	}
+		m_avSpawnPoints[WorldID].push_back(Pos);
 
 	return false;
 }

@@ -21,7 +21,7 @@ class IGameController
 {
 	friend class CSaveTeam; // need access to GameServer() and Server()
 
-	std::vector<vec2> m_avSpawnPoints[3];
+	std::vector<vec2> m_avSpawnPoints[32];
 
 	class CGameContext *m_pGameServer;
 	class CConfig *m_pConfig;
@@ -134,7 +134,7 @@ public:
 	virtual void Snap(int SnappingClient);
 
 	//spawn
-	virtual bool CanSpawn(int Team, vec2 *pOutPos, int DDTeam);
+	virtual bool CanSpawn(int Team, vec2 *pOutPos, int DDTeam, int WorldID);
 
 	virtual void DoTeamChange(class CPlayer *pPlayer, int Team, bool DoChatMsg = true);
 	/*
