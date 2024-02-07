@@ -11,8 +11,9 @@ EntityManager.Register("basic_wall", {
 	Fov = 160,
 	SegmentsHalf = 4,
 	SnapIDs = nil,
+	WorldID = 0,
 
-	OnInit = function(self, Pos, Dir, OwnerID, DamageType, Damage)
+	OnInit = function(self, Pos, WorldID, Dir, OwnerID, DamageType, Damage)
 		self.Pos = copy_vector(Pos)
 		self.Dir = copy_vector(Dir) * vec2(10, 10)
 		self.SnapID = Game.Server:SnapNewID()
@@ -21,6 +22,8 @@ EntityManager.Register("basic_wall", {
 		self.Damage = Damage
 		self.StartedTick = Game.Server.Tick
 		self.EndTick = Game.Server.Tick + 75
+		self.WorldID = WorldID
+
 		for i = -self.SegmentsHalf, self.SegmentsHalf do
 			self.SnapIDs[i] = Game.Server:SnapNewID()
 		end
@@ -35,7 +38,7 @@ EntityManager.Register("basic_wall", {
 		end
 
 		-- Check for walls
-		if Game.Collision:IntersectLine(self.Pos, self.Pos + self.Dir * vec2(6, 6), nil, nil) ~= TILE_AIR then
+		if Game.Collision(self.WorldID):IntersectLine(self.Pos, self.Pos + self.Dir * vec2(6, 6), nil, nil) ~= TILE_AIR then
 			self.MarkedToRemove = true
 			return
 		end
@@ -63,13 +66,17 @@ EntityManager.Register("basic_wall", {
 	end,
 
 	OnSnap = function(self, ClientID)
+		if self:NetworkClipped(ClientID) then
+			return
+		end
+
 		self.Fov = self.Fov * math.pi / 180
 		Step = self.Fov / self.SegmentsHalf
 		for i = -self.SegmentsHalf, self.SegmentsHalf do
 			angle = Step * i
-		  
-			x = cos(angle) 
-			y = sin(angle) 
+
+			x = cos(angle)
+			y = sin(angle)
 
 			local Item = Game.Server:SnapNewItemLaser(self.SnapIDs[i])
 

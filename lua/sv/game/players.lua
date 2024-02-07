@@ -1,10 +1,10 @@
-local function HandleTiles(CID, Ply)
+local function HandleTiles(CID, Ply, WorldID)
 	local Chr = Ply.Character
 	if not Chr then
 		return
 	end
 
-	local Tile = Game.Collision:GetTile(Chr.Pos.x, Chr.Pos.y)
+	local Tile = Game.Collision(WorldID):GetTile(Chr.Pos.x, Chr.Pos.y)
 
 	if Tile == TILE_PLUS_5 and Game.Server.Tick % 50 == 0 then
 		GiveExp(CID, 5)
@@ -36,7 +36,7 @@ local function HandleTiles(CID, Ply)
 end
 
 
-local function HandleHUD(CID, Ply)
+local function HandleHUD(CID, Ply, WorldID)
 	if Game.Server.Tick % 25 ~= 0 then
 		return
 	end
@@ -97,7 +97,7 @@ local function HandleHUD(CID, Ply)
 end
 
 
-local function HandleRegen(CID, Ply)
+local function HandleRegen(CID, Ply, WorldID)
 	if Game.Server.Tick % 50 ~= 0 then
 		return
 	end
@@ -134,13 +134,15 @@ end
 
 
 local function PlayersTick()
-	for i = 0, 63 do
+	for i = 0, MAX_CLIENTS - 1 do
 		local Ply = Game.Players(i)
 
 		if Ply then
-			HandleTiles(i, Ply)
-			HandleHUD(i, Ply)
-			HandleRegen(i, Ply)
+			local WorldID = Ply.WorldID
+
+			HandleTiles(i, Ply, WorldID)
+			HandleHUD(i, Ply, WorldID)
+			HandleRegen(i, Ply, WorldID)
 		end
 	end
 end

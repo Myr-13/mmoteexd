@@ -38,6 +38,7 @@
 
 // DDRace
 #include <engine/shared/linereader.h>
+#include <game/server/gamecontext.h>
 #include <vector>
 #include <zlib.h>
 
@@ -312,6 +313,7 @@ void CServer::CClient::Reset()
 	m_IsMMOClient = false;
 	m_NumOfChunks = 0;
 	m_NextChunk = 0;
+	m_WorldID = 0;
 }
 
 CServer::CServer()
@@ -1293,31 +1295,33 @@ void CServer::SendCapabilities(int ClientID)
 
 void CServer::SendMap(int ClientID)
 {
-	int MapType = IsSixup(ClientID) ? MAP_TYPE_SIXUP : MAP_TYPE_SIX;
-	{
-		CMsgPacker Msg(NETMSG_MAP_DETAILS, true);
-		Msg.AddString(GetMapName(), 0);
-		Msg.AddRaw(&m_aCurrentMapSha256[MapType].data, sizeof(m_aCurrentMapSha256[MapType].data));
-		Msg.AddInt(m_aCurrentMapCrc[MapType]);
-		Msg.AddInt(m_aCurrentMapSize[MapType]);
-		Msg.AddString("", 0); // HTTPS map download URL
-		SendMsg(&Msg, MSGFLAG_VITAL, ClientID);
-	}
-	{
-		CMsgPacker Msg(NETMSG_MAP_CHANGE, true);
-		Msg.AddString(GetMapName(), 0);
-		Msg.AddInt(m_aCurrentMapCrc[MapType]);
-		Msg.AddInt(m_aCurrentMapSize[MapType]);
-		if(MapType == MAP_TYPE_SIXUP)
-		{
-			Msg.AddInt(Config()->m_SvMapWindow);
-			Msg.AddInt(1024 - 128);
-			Msg.AddRaw(m_aCurrentMapSha256[MapType].data, sizeof(m_aCurrentMapSha256[MapType].data));
-		}
-		SendMsg(&Msg, MSGFLAG_VITAL | MSGFLAG_FLUSH, ClientID);
-	}
+//	int MapType = IsSixup(ClientID) ? MAP_TYPE_SIXUP : MAP_TYPE_SIX;
+//	{
+//		CMsgPacker Msg(NETMSG_MAP_DETAILS, true);
+//		Msg.AddString(GetMapName(), 0);
+//		Msg.AddRaw(&m_aCurrentMapSha256[MapType].data, sizeof(m_aCurrentMapSha256[MapType].data));
+//		Msg.AddInt(m_aCurrentMapCrc[MapType]);
+//		Msg.AddInt(m_aCurrentMapSize[MapType]);
+//		Msg.AddString("", 0); // HTTPS map download URL
+//		SendMsg(&Msg, MSGFLAG_VITAL, ClientID);
+//	}
+//	{
+//		CMsgPacker Msg(NETMSG_MAP_CHANGE, true);
+//		Msg.AddString(GetMapName(), 0);
+//		Msg.AddInt(m_aCurrentMapCrc[MapType]);
+//		Msg.AddInt(m_aCurrentMapSize[MapType]);
+//		if(MapType == MAP_TYPE_SIXUP)
+//		{
+//			Msg.AddInt(Config()->m_SvMapWindow);
+//			Msg.AddInt(1024 - 128);
+//			Msg.AddRaw(m_aCurrentMapSha256[MapType].data, sizeof(m_aCurrentMapSha256[MapType].data));
+//		}
+//		SendMsg(&Msg, MSGFLAG_VITAL | MSGFLAG_FLUSH, ClientID);
+//	}
+//
+//	m_aClients[ClientID].m_NextMapChunk = 0;
 
-	m_aClients[ClientID].m_NextMapChunk = 0;
+	((CGameContext *)m_pGameServer)->m_MultiWorldManager.SendMap(ClientID, 0);
 }
 
 void CServer::SendMapData(int ClientID, int Chunk)
@@ -1621,6 +1625,13 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 			if((pPacket->m_Flags & NET_CHUNKFLAG_VITAL) == 0 || m_aClients[ClientID].m_State < CClient::STATE_CONNECTING)
 				return;
 
+			int Chunk = Unpacker.GetInt();
+			if(Unpacker.Error())
+				return;
+
+			((CGameContext *)m_pGameServer)->m_MultiWorldManager.SendMapData(ClientID, Chunk);
+			return;
+
 			if(m_aClients[ClientID].m_Sixup)
 			{
 				for(int i = 0; i < Config()->m_SvMapWindow; i++)
@@ -1630,11 +1641,6 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 				return;
 			}
 
-			int Chunk = Unpacker.GetInt();
-			if(Unpacker.Error())
-			{
-				return;
-			}
 			if(Chunk != m_aClients[ClientID].m_NextMapChunk || !Config()->m_SvFastDownload)
 			{
 				SendMapData(ClientID, Chunk);
@@ -2749,11 +2755,11 @@ int CServer::Run()
 	m_pPersistentData = malloc(GameServer()->PersistentDataSize());
 
 	// load map
-	if(!LoadMap(Config()->m_SvMap))
-	{
-		dbg_msg("server", "failed to load map. mapname='%s'", Config()->m_SvMap);
-		return -1;
-	}
+//	if(!LoadMap(Config()->m_SvMap))
+//	{
+//		dbg_msg("server", "failed to load map. mapname='%s'", Config()->m_SvMap);
+//		return -1;
+//	}
 
 	if(Config()->m_SvSqliteFile[0] != '\0')
 	{
@@ -2857,66 +2863,56 @@ int CServer::Run()
 			int NewTicks = 0;
 
 			// load new map
-			if(m_MapReload || m_CurrentGameTick >= MAX_TICK) // force reload to make sure the ticks stay within a valid range
+			if(m_CurrentGameTick >= MAX_TICK) // force reload to make sure the ticks stay within a valid range
 			{
-				// load map
-				if(LoadMap(Config()->m_SvMap))
+				// ask the game to for the data it wants to persist past a map change
+				for(int i = 0; i < MAX_CLIENTS; i++)
 				{
-					// new map loaded
-
-					// ask the game to for the data it wants to persist past a map change
-					for(int i = 0; i < MAX_CLIENTS; i++)
+					if(m_aClients[i].m_State == CClient::STATE_INGAME)
 					{
-						if(m_aClients[i].m_State == CClient::STATE_INGAME)
-						{
-							m_aClients[i].m_HasPersistentData = GameServer()->OnClientDataPersist(i, m_aClients[i].m_pPersistentData);
-						}
+						m_aClients[i].m_HasPersistentData = GameServer()->OnClientDataPersist(i, m_aClients[i].m_pPersistentData);
 					}
+				}
 
 #ifdef CONF_DEBUG
-					UpdateDebugDummies(true);
+				UpdateDebugDummies(true);
 #endif
-					GameServer()->OnShutdown(m_pPersistentData);
+				GameServer()->OnShutdown(m_pPersistentData);
 
-					for(int ClientID = 0; ClientID < MAX_CLIENTS; ClientID++)
-					{
-						if(m_aClients[ClientID].m_State <= CClient::STATE_AUTH)
-							continue;
-
-						SendMap(ClientID);
-						bool HasPersistentData = m_aClients[ClientID].m_HasPersistentData;
-						m_aClients[ClientID].Reset();
-						m_aClients[ClientID].m_HasPersistentData = HasPersistentData;
-						m_aClients[ClientID].m_State = CClient::STATE_CONNECTING;
-					}
-
-					m_GameStartTime = time_get();
-					m_CurrentGameTick = MIN_TICK;
-					m_ServerInfoFirstRequest = 0;
-					Kernel()->ReregisterInterface(GameServer());
-					GameServer()->OnInit(m_pPersistentData);
-					if(ErrorShutdown())
-					{
-						break;
-					}
-					UpdateServerInfo(true);
-					for(int ClientID = 0; ClientID < MAX_CLIENTS; ClientID++)
-					{
-						if(m_aClients[ClientID].m_State != CClient::STATE_CONNECTING)
-							continue;
-
-						// When doing a map change, a new Teehistorian file is created. For players that are already
-						// on the server, no PlayerJoin event is produced in Teehistorian from the network engine.
-						// Record PlayerJoin events here to record the Sixup version and player join event.
-						GameServer()->TeehistorianRecordPlayerJoin(ClientID, m_aClients[ClientID].m_Sixup);
-					}
-				}
-				else
+				for(int ClientID = 0; ClientID < MAX_CLIENTS; ClientID++)
 				{
-					str_format(aBuf, sizeof(aBuf), "failed to load map. mapname='%s'", Config()->m_SvMap);
-					Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", aBuf);
-					str_copy(Config()->m_SvMap, m_aCurrentMap);
+					if(m_aClients[ClientID].m_State <= CClient::STATE_AUTH)
+						continue;
+
+					SendMap(ClientID);
+					bool HasPersistentData = m_aClients[ClientID].m_HasPersistentData;
+					m_aClients[ClientID].Reset();
+					m_aClients[ClientID].m_HasPersistentData = HasPersistentData;
+					m_aClients[ClientID].m_State = CClient::STATE_CONNECTING;
 				}
+
+				m_GameStartTime = time_get();
+				m_CurrentGameTick = MIN_TICK;
+				m_ServerInfoFirstRequest = 0;
+				Kernel()->ReregisterInterface(GameServer());
+				GameServer()->OnInit(m_pPersistentData);
+				if(ErrorShutdown())
+				{
+					break;
+				}
+				UpdateServerInfo(true);
+				for(int ClientID = 0; ClientID < MAX_CLIENTS; ClientID++)
+				{
+					if(m_aClients[ClientID].m_State != CClient::STATE_CONNECTING)
+						continue;
+
+					// When doing a map change, a new Teehistorian file is created. For players that are already
+					// on the server, no PlayerJoin event is produced in Teehistorian from the network engine.
+					// Record PlayerJoin events here to record the Sixup version and player join event.
+					GameServer()->TeehistorianRecordPlayerJoin(ClientID, m_aClients[ClientID].m_Sixup);
+				}
+
+				m_MapReload = false;
 			}
 
 			// handle dnsbl
@@ -4018,4 +4014,14 @@ void CServer::SetLoggers(std::shared_ptr<ILogger> &&pFileLogger, std::shared_ptr
 {
 	m_pFileLogger = pFileLogger;
 	m_pStdoutLogger = pStdoutLogger;
+}
+
+int CServer::GetClientWorld(int ClientID) const
+{
+	return m_aClients[ClientID].m_WorldID;
+}
+
+void CServer::SetClientWorld(int ClientID, int WorldID)
+{
+	m_aClients[ClientID].m_WorldID = WorldID;
 }

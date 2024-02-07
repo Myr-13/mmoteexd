@@ -2101,7 +2101,7 @@ void CMenus::RenderSettings(CUIRect MainView)
 		static CButtonContainer s_RestartButton;
 		if(DoButton_Menu(&s_RestartButton, Localize("Restart"), 0, &RestartButton))
 		{
-			if(Client()->State() == IClient::STATE_ONLINE || m_pClient->Editor()->HasUnsavedData())
+			if(Client()->State() == IClient::STATE_ONLINE)
 			{
 				m_Popup = POPUP_RESTART;
 			}

@@ -28,12 +28,18 @@ end
 
 
 local function AdmCreateEntity(Result)
-	local Chr = Game.Players(Result.ClientID).Character
+	local Ply = Game.Players(Result.ClientID)
+	local Chr = Ply.Character
 	if not Chr then
 		return
 	end
 
-	World.Spawn(Result:GetString(0), Chr.Pos)
+	World.Spawn(Result:GetString(0), Chr.Pos, Ply.WorldID)
+end
+
+
+local function AdmGotoWorld(Result)
+	Game.GameServer.MultiWorldManager:ChangeWorld(Result:GetVictim(0), Result:GetInteger(1))
 end
 
 
@@ -42,4 +48,5 @@ Hook.Add("OnConsoleInit", "AdminCommands", function()
 	Console.RegisterRcon("give_item", "v[id] i[item_id] ?i[count]", "Give item", AdmGiveItem)
 	Console.RegisterRcon("give_money", "v[id] f[count]", "Give item", AdmGiveMoney)
 	Console.RegisterRcon("create_entity", "s[entity]", "Create entity with specific logic", AdmCreateEntity)
+	Console.RegisterRcon("goto_world", "v[id] i[world_id]", "Teleport player v to world i", AdmGotoWorld)
 end)

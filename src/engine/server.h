@@ -61,6 +61,9 @@ public:
 	virtual void SetClientDDNetVersion(int ClientID, int DDNetVersion) = 0;
 	virtual void GetClientAddr(int ClientID, char *pAddrStr, int Size) const = 0;
 
+	virtual int GetClientWorld(int ClientID) const = 0;
+	virtual void SetClientWorld(int ClientID, int WorldID) = 0;
+
 	/**
 	 * Returns the version of the client with the given client ID.
 	 *

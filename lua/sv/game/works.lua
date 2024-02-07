@@ -71,42 +71,42 @@ function GiveWorkExp(CID, ID, Exp)
 end
 
 
-local function InitJobs()
-	local Layers = Game.Collision.Layers
+local function InitJobs(WorldID)
+	local Layers = Game.Collision(WorldID).Layers
 	local Switch = Layers.Switch
-	local Width = Game.Collision.Width
+	local Width = Game.Collision(WorldID).Width
 
-	for y = 0, Game.Collision.Height - 1 do
+	for y = 0, Game.Collision(WorldID).Height - 1 do
 		for x = 0, Width - 1 do
 			local Tile = Layers:GetTile(Switch, y * Width + x)
 			local SwitchID = Tile.Type
 			local RealPos = vec2(x * 32 + 16, y * 32 + 16)
-			local ID = Game.Collision:GetTile(RealPos.x, RealPos.y)
+			local ID = Game.Collision(WorldID):GetTile(RealPos.x, RealPos.y)
 
-			if IsSolid(RealPos.x, RealPos.y + 32) then
+			if IsSolid(WorldID, RealPos.x, RealPos.y + 32) then
 				RealPos.y = RealPos.y + 16
-			elseif IsSolid(RealPos.x + 32, RealPos.y) then
+			elseif IsSolid(WorldID, RealPos.x + 32, RealPos.y) then
 				RealPos.x = RealPos.x + 16
-			elseif IsSolid(RealPos.x - 32, RealPos.y) then
+			elseif IsSolid(WorldID, RealPos.x - 32, RealPos.y) then
 				RealPos.x = RealPos.x - 16
 			else
 				RealPos.y = RealPos.y - 16
 			end
 
 			if ID == TILE_JOB_FARM then
-				World.Spawn("work_item", RealPos, WORK_FARMER)
+				World.Spawn("work_item", RealPos, WorldID, WORK_FARMER)
 			elseif ID == TILE_JOB_MINE then
-				World.Spawn("work_item", RealPos, WORK_MINER)
+				World.Spawn("work_item", RealPos, WorldID, WORK_MINER)
 			elseif ID == TILE_JOB_FORAGER then
-				World.Spawn("work_item", RealPos, WORK_FORAGER)
+				World.Spawn("work_item", RealPos, WorldID, WORK_FORAGER)
 			elseif ID == TILE_JOB_FISHER or SwitchID == TILE_JOB_FISHER then
-				World.Spawn("work_item", RealPos, WORK_FISHER)
+				World.Spawn("work_item", RealPos, WorldID, WORK_FISHER)
 			elseif ID == TILE_JOB_LOADER then
-				World.Spawn("work_item", RealPos, WORK_LOADER)
+				World.Spawn("work_item", RealPos, WorldID, WORK_LOADER)
 			end
 		end
 	end
 end
 
 
-Hook.Add("OnInit", "SpawnJobs", InitJobs)
+Hook.Add("OnWorldLoaded", "SpawnJobs", InitJobs)

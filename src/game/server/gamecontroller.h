@@ -6,7 +6,6 @@
 #include <base/vmath.h>
 #include <engine/map.h>
 #include <engine/shared/protocol.h>
-#include <game/server/teams.h>
 
 #include <map>
 #include <vector>
@@ -27,8 +26,6 @@ class IGameController
 	class CGameContext *m_pGameServer;
 	class CConfig *m_pConfig;
 	class IServer *m_pServer;
-
-	CGameTeams m_Teams;
 
 protected:
 	CGameContext *GameServer() const { return m_pGameServer; }
@@ -111,7 +108,7 @@ public:
 		Returns:
 			bool?
 	*/
-	virtual bool OnEntity(int Index, int x, int y, int Layer, int Flags, bool Initial, int Number = 0);
+	virtual bool OnEntity(int Index, int x, int y, int Layer, int Flags, bool Initial, int WorldID, int Number = 0);
 
 	virtual void OnPlayerConnect(class CPlayer *pPlayer);
 	virtual void OnPlayerDisconnect(class CPlayer *pPlayer, const char *pReason);
@@ -151,14 +148,12 @@ public:
 	CClientMask GetMaskForPlayerWorldEvent(int Asker, int ExceptID = -1);
 	virtual void InitTeleporter();
 
-	bool IsTeamPlay() { return m_GameFlags & GAMEFLAG_TEAMS; }
+	bool IsTeamPlay() { return false; }
 	// DDRace
 
 	float m_CurrentRecord;
 	std::map<int, std::vector<vec2>> m_TeleOuts;
 	std::map<int, std::vector<vec2>> m_TeleCheckOuts;
-	CGameTeams &Teams() { return m_Teams; }
-	std::shared_ptr<CScoreLoadBestTimeResult> m_pLoadBestTimeResult;
 };
 
 #endif

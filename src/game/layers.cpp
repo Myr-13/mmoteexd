@@ -23,9 +23,14 @@ CLayers::CLayers()
 	m_pTuneLayer = 0;
 }
 
-void CLayers::Init(class IKernel *pKernel)
+void CLayers::Init(IKernel *pKernel)
 {
-	m_pMap = pKernel->RequestInterface<IMap>();
+	InitNoKernel(pKernel->RequestInterface<IMap>());
+}
+
+void CLayers::InitNoKernel(IMap *pMap)
+{
+	m_pMap = pMap;
 	m_pMap->GetType(MAPITEMTYPE_GROUP, &m_GroupsStart, &m_GroupsNum);
 	m_pMap->GetType(MAPITEMTYPE_LAYER, &m_LayersStart, &m_LayersNum);
 

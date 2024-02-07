@@ -232,6 +232,7 @@ public:
 		int m_NumOfChunks;
 		int m_NextChunk;
 		int m_CurrentFileID;
+		int m_WorldID;
 	};
 
 	CClient m_aClients[MAX_CLIENTS];
@@ -522,6 +523,9 @@ public:
 
 	void SendConnLoggingCommand(CONN_LOGGING_CMD Cmd, const NETADDR *pAddr);
 #endif
+
+	int GetClientWorld(int ClientID) const override;
+	void SetClientWorld(int ClientID, int WorldID) override;
 };
 
 extern CServer *CreateServer();

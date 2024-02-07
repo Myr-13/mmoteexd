@@ -275,11 +275,6 @@ void CMenuBackground::LoadMenuBackground(bool HasDayHint, bool HasNightHint)
 						for(int x = 0; x < pTLayer->m_Width; ++x)
 						{
 							unsigned char Index = ((CTile *)pTiles)[y * pTLayer->m_Width + x].m_Index;
-							if(Index >= TILE_TIME_CHECKPOINT_FIRST && Index <= TILE_TIME_CHECKPOINT_LAST)
-							{
-								int ArrayIndex = clamp<int>((Index - TILE_TIME_CHECKPOINT_FIRST), 0, NUM_POS);
-								m_aPositions[ArrayIndex] = vec2(x * 32.0f + 16.0f, y * 32.0f + 16.0f);
-							}
 
 							x += ((CTile *)pTiles)[y * pTLayer->m_Width + x].m_Skip;
 						}

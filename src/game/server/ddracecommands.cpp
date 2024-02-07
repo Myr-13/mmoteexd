@@ -7,8 +7,6 @@
 #include <game/server/entities/character.h>
 #include <game/server/gamemodes/DDRace.h>
 #include <game/server/player.h>
-#include <game/server/save.h>
-#include <game/server/teams.h>
 
 bool CheckClientID(int ClientID);
 
@@ -356,35 +354,10 @@ void CGameContext::Teleport(CCharacter *pChr, vec2 Pos)
 
 void CGameContext::ConToTeleporter(IConsole::IResult *pResult, void *pUserData)
 {
-	CGameContext *pSelf = (CGameContext *)pUserData;
-	unsigned int TeleTo = pResult->GetInteger(0);
-
-	if(!pSelf->m_pController->m_TeleOuts[TeleTo - 1].empty())
-	{
-		CCharacter *pChr = pSelf->GetPlayerChar(pResult->m_ClientID);
-		if(pChr)
-		{
-			int TeleOut = pSelf->m_World.m_Core.RandomOr0(pSelf->m_pController->m_TeleOuts[TeleTo - 1].size());
-			pSelf->Teleport(pChr, pSelf->m_pController->m_TeleOuts[TeleTo - 1][TeleOut]);
-		}
-	}
 }
 
 void CGameContext::ConToCheckTeleporter(IConsole::IResult *pResult, void *pUserData)
 {
-	CGameContext *pSelf = (CGameContext *)pUserData;
-	unsigned int TeleTo = pResult->GetInteger(0);
-
-	if(!pSelf->m_pController->m_TeleCheckOuts[TeleTo - 1].empty())
-	{
-		CCharacter *pChr = pSelf->GetPlayerChar(pResult->m_ClientID);
-		if(pChr)
-		{
-			int TeleOut = pSelf->m_World.m_Core.RandomOr0(pSelf->m_pController->m_TeleCheckOuts[TeleTo - 1].size());
-			pSelf->Teleport(pChr, pSelf->m_pController->m_TeleCheckOuts[TeleTo - 1][TeleOut]);
-			pChr->m_TeleCheckpoint = TeleTo;
-		}
-	}
 }
 
 void CGameContext::ConTeleport(IConsole::IResult *pResult, void *pUserData)
@@ -774,36 +747,10 @@ void CGameContext::ConModerate(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConSetDDRTeam(IConsole::IResult *pResult, void *pUserData)
 {
-	CGameContext *pSelf = (CGameContext *)pUserData;
-	auto *pController = pSelf->m_pController;
-
-	if(g_Config.m_SvTeam == SV_TEAM_FORBIDDEN || g_Config.m_SvTeam == SV_TEAM_FORCED_SOLO)
-	{
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "join",
-			"Teams are disabled");
-		return;
-	}
-
-	int Target = pResult->GetVictim();
-	int Team = pResult->GetInteger(1);
-
-	if(Team < TEAM_FLOCK || Team >= TEAM_SUPER)
-		return;
-
-	CCharacter *pChr = pSelf->GetPlayerChar(Target);
-
-	if((pSelf->GetDDRaceTeam(Target) && pController->Teams().GetDDRaceState(pSelf->m_apPlayers[Target]) == DDRACE_STARTED) || (pChr && pController->Teams().IsPractice(pChr->Team())))
-		pSelf->m_apPlayers[Target]->KillCharacter(WEAPON_GAME);
-
-	pController->Teams().SetForceCharacterTeam(Target, Team);
 }
 
 void CGameContext::ConUninvite(IConsole::IResult *pResult, void *pUserData)
 {
-	CGameContext *pSelf = (CGameContext *)pUserData;
-	auto *pController = pSelf->m_pController;
-
-	pController->Teams().SetClientInvited(pResult->GetInteger(1), pResult->GetVictim(), false);
 }
 
 void CGameContext::ConFreezeHammer(IConsole::IResult *pResult, void *pUserData)
@@ -850,30 +797,6 @@ void CGameContext::ConVoteNo(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConDrySave(IConsole::IResult *pResult, void *pUserData)
 {
-	CGameContext *pSelf = (CGameContext *)pUserData;
-
-	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
-
-	if(!pPlayer || pSelf->Server()->GetAuthedState(pResult->m_ClientID) != AUTHED_ADMIN)
-		return;
-
-	CSaveTeam SavedTeam;
-	int Team = pSelf->GetDDRaceTeam(pResult->m_ClientID);
-	int Result = SavedTeam.Save(pSelf, Team, true);
-	if(CSaveTeam::HandleSaveError(Result, pResult->m_ClientID, pSelf))
-		return;
-
-	char aTimestamp[32];
-	str_timestamp(aTimestamp, sizeof(aTimestamp));
-	char aBuf[64];
-	str_format(aBuf, sizeof(aBuf), "%s_%s_%s.save", pSelf->Server()->GetMapName(), aTimestamp, pSelf->Server()->GetAuthName(pResult->m_ClientID));
-	IOHANDLE File = pSelf->Storage()->OpenFile(aBuf, IOFLAG_WRITE, IStorage::TYPE_ALL);
-	if(!File)
-		return;
-
-	int Len = str_length(SavedTeam.GetString());
-	io_write(File, SavedTeam.GetString(), Len);
-	io_close(File);
 }
 
 void CGameContext::ConDumpAntibot(IConsole::IResult *pResult, void *pUserData)

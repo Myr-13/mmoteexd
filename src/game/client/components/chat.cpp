@@ -1,7 +1,6 @@
 /* (c) Magnus Auvinen. See licence.txt in the root of the distribution for more information. */
 /* If you are missing that file, acquire a complete release at teeworlds.com.                */
 
-#include <engine/editor.h>
 #include <engine/graphics.h>
 #include <engine/keys.h>
 #include <engine/shared/config.h>
@@ -895,11 +894,6 @@ void CChat::AddLine(int ClientID, int Team, const char *pLine)
 			{
 				m_pClient->m_Sounds.Play(CSounds::CHN_GUI, SOUND_CHAT_HIGHLIGHT, 0);
 				m_aLastSoundPlayed[CHAT_HIGHLIGHT] = Now;
-			}
-
-			if(g_Config.m_ClEditor)
-			{
-				GameClient()->Editor()->UpdateMentions();
 			}
 		}
 	}

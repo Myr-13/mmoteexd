@@ -41,6 +41,7 @@ private:
 protected:
 	/* State */
 	bool m_MarkedForDestroy;
+	int m_WorldID;
 
 public: // TODO: Maybe make protected
 	/*
@@ -53,7 +54,7 @@ public: // TODO: Maybe make protected
 	int GetID() const { return m_ID; }
 
 	/* Constructor */
-	CEntity(CGameWorld *pGameWorld, int Objtype, vec2 Pos = vec2(0, 0), int ProximityRadius = 0);
+	CEntity(CGameWorld *pGameWorld, int Objtype, int WorldID, vec2 Pos = vec2(0, 0), int ProximityRadius = 0);
 
 	/* Destructor */
 	virtual ~CEntity();

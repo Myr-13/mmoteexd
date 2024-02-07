@@ -4,7 +4,6 @@
 #include "gameworld.h"
 #include "entities/character.h"
 #include "entity.h"
-#include "mmo/lua_entity.h"
 #include "gamecontext.h"
 #include "gamecontroller.h"
 
@@ -146,8 +145,6 @@ void CGameWorld::Reset()
 	RemoveEntities();
 
 	m_ResetRequested = false;
-
-	GameServer()->CreateAllEntities(false);
 }
 
 void CGameWorld::RemoveEntitiesFromPlayer(int PlayerId)
@@ -315,22 +312,22 @@ CCharacter *CGameWorld::ClosestCharacter(vec2 Pos, float Radius, const CEntity *
 	float ClosestRange = Radius * 2;
 	CCharacter *pClosest = 0;
 
-	CCharacter *p = (CCharacter *)GameServer()->m_World.FindFirst(ENTTYPE_CHARACTER);
-	for(; p; p = (CCharacter *)p->TypeNext())
-	{
-		if(p == pNotThis)
-			continue;
-
-		float Len = distance(Pos, p->m_Pos);
-		if(Len < p->m_ProximityRadius + Radius)
-		{
-			if(Len < ClosestRange)
-			{
-				ClosestRange = Len;
-				pClosest = p;
-			}
-		}
-	}
+//	CCharacter *p = (CCharacter *)GameServer()->m_World.FindFirst(ENTTYPE_CHARACTER);
+//	for(; p; p = (CCharacter *)p->TypeNext())
+//	{
+//		if(p == pNotThis)
+//			continue;
+//
+//		float Len = distance(Pos, p->m_Pos);
+//		if(Len < p->m_ProximityRadius + Radius)
+//		{
+//			if(Len < ClosestRange)
+//			{
+//				ClosestRange = Len;
+//				pClosest = p;
+//			}
+//		}
+//	}
 
 	return pClosest;
 }
@@ -375,9 +372,4 @@ void CGameWorld::ReleaseHooked(int ClientID)
 CTuningParams *CGameWorld::Tuning()
 {
 	return &m_Core.m_aTuning[0];
-}
-
-void CGameWorld::InsertLuaEntity(CLuaEntity *pEnt)
-{
-	m_vLuaEntities[pEnt->m_LuaEntType].push_back(pEnt);
 }

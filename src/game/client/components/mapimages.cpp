@@ -285,7 +285,7 @@ IGraphics::CTextureHandle CMapImages::GetEntities(EMapImageEntityLayerType Entit
 						{
 							if(EntitiesModType == MAP_IMAGE_MOD_TYPE_DDNET || EntitiesModType == MAP_IMAGE_MOD_TYPE_DDRACE)
 							{
-								if(EntitiesModType == MAP_IMAGE_MOD_TYPE_DDNET || TileIndex != TILE_BOOST)
+								if(EntitiesModType == MAP_IMAGE_MOD_TYPE_DDNET)
 								{
 									if(n == MAP_IMAGE_ENTITY_LAYER_TYPE_ALL_EXCEPT_SWITCH && !IsValidGameTile((int)TileIndex) && !IsValidFrontTile((int)TileIndex) && !IsValidSpeedupTile((int)TileIndex) &&
 										!IsValidTeleTile((int)TileIndex) && !IsValidTuneTile((int)TileIndex))
@@ -309,12 +309,6 @@ IGraphics::CTextureHandle CMapImages::GetEntities(EMapImageEntityLayerType Entit
 							{
 								ValidTile = false;
 							}
-						}
-
-						if(EntitiesModType == MAP_IMAGE_MOD_TYPE_DDNET || EntitiesModType == MAP_IMAGE_MOD_TYPE_DDRACE)
-						{
-							if(n == MAP_IMAGE_ENTITY_LAYER_TYPE_SWITCH && TileIndex == TILE_SWITCHTIMEDOPEN)
-								TileIndex = 8;
 						}
 
 						int X = TileIndex % 16;

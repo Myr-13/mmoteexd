@@ -12,6 +12,7 @@ function CreateDummyEntity()
 		Data = nil,
 		AttackTick = 0,
 		ReloadTime = 0,
+		WorldID = 0,
 	
 		Damage = function(self, Force, Dmg, CID)
 			self.Health = self.Health - Dmg
@@ -76,18 +77,19 @@ function CreateDummyEntity()
 			end
 		end,
 	
-		OnInit = function(self, Pos, Data)
+		OnInit = function(self, Pos, WorldID, Data)
 			self.Core = CCharacterCore()
 			self.Input = CNetObj_PlayerInput()
 			self.OldInput = CNetObj_PlayerInput()
-			self.Core:Init(Game.World.Core, Game.Collision, nil, nil)
+			self.Core:Init(Game.World(WorldID).Core, Game.Collision(WorldID), nil, nil)
 			self.Core.Pos = copy_vector(Pos)
 			self.Pos = copy_vector(Pos)
 			self.SpawnPos = copy_vector(Pos)
 			self.SnapID = Game.Server:SnapNewID()
 			self.Data = Data
+			self.WorldID = WorldID
 	
-			Game.World.Core:AddDummy(self.Core)
+			Game.World(WorldID).Core:AddDummy(self.Core)
 
 			if self.OnLogicInit then
 				self:OnLogicInit()
@@ -126,7 +128,7 @@ function CreateDummyEntity()
 			self.Pos = copy_vector(self.Core.Pos)
 
 			-- Handle tiles
-			if Game.Collision:GetTile(self.Pos.x, self.Pos.y) == TILE_PVP_ON then
+			if Game.Collision(self.WorldID):GetTile(self.Pos.x, self.Pos.y) == TILE_PVP_ON then
 				self:OnDeath(-1)
 			end
 
@@ -136,7 +138,7 @@ function CreateDummyEntity()
 		end,
 	
 		OnSnap = function(self, ClientID)
-			if Game.GameServer:NetworkClipped(ClientID, self.Pos) then
+			if self:NetworkClipped(ClientID) then
 				return
 			end
 

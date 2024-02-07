@@ -5,8 +5,6 @@
 #include <engine/server/server.h>
 #include <engine/shared/lua/lua_state.h>
 
-#include <game/server/mmo/entities/dummy.h>
-
 #define LUA_CHUNK_SIZE (1024 - 128)
 
 void CGameContext::SendLuaFiles(int ClientID)
@@ -148,12 +146,12 @@ int CGameContext::GetNextBotSnapID(int ClientID)
 	return ((Prev >= MAX_CLIENTS) ? -1 : Prev);
 }
 
-void CGameContext::CreateDummy(vec2 Pos, const char *pLuaFile)
+CCollision *CGameContext::Collision(int WorldID)
 {
-	new CDummy(&m_World, Pos, pLuaFile);
+	return m_MultiWorldManager.Collision(WorldID);
 }
 
-void CGameContext::CreateEntity(vec2 Pos, const char *pType, const char *pLuaFile)
+CGameWorld *CGameContext::GameWorld(int WorldID)
 {
-	new CLuaEntity(&m_World, Pos, pLuaFile, pType);
+	return m_MultiWorldManager.GameWorld(WorldID);
 }

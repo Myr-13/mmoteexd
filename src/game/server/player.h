@@ -8,7 +8,6 @@
 #include <engine/shared/protocol.h>
 
 #include <game/alloc.h>
-#include <game/server/save.h>
 
 #include "teeinfo.h"
 
@@ -19,7 +18,6 @@ class CCharacter;
 class CGameContext;
 class IServer;
 struct CNetObj_PlayerInput;
-struct CScorePlayerResult;
 
 enum
 {
@@ -134,10 +132,11 @@ private:
 	int m_NumInputs;
 	CGameContext *m_pGameServer;
 
+public:
 	CGameContext *GameServer() const { return m_pGameServer; }
 	IServer *Server() const;
 
-	//
+private:
 	bool m_Spawning;
 	bool m_WeakHookSpawn;
 	int m_ClientID;
@@ -215,17 +214,11 @@ public:
 	bool CanOverrideDefaultEmote() const;
 
 	bool m_FirstPacket;
-	int64_t m_LastSQLQuery;
-	void ProcessScoreResult(CScorePlayerResult &Result);
-	std::shared_ptr<CScorePlayerResult> m_ScoreQueryResult;
-	std::shared_ptr<CScorePlayerResult> m_ScoreFinishResult;
 	bool m_NotEligibleForFinish;
 	int64_t m_EligibleForFinishCheck;
 	bool m_VotedForPractice;
 	int m_SwapTargetsClientID; //Client ID of the swap target for the given player
 	bool m_BirthdayAnnounced;
-
-	CSaveTee m_LastTeleTee;
 
 	float m_MaxHealth;
 };

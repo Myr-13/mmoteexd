@@ -1,10 +1,10 @@
 /* (c) Magnus Auvinen. See licence.txt in the root of the distribution for more information. */
 /* If you are missing that file, acquire a complete release at teeworlds.com.                */
+
 #include "player.h"
 #include "entities/character.h"
 #include "gamecontext.h"
 #include "gamecontroller.h"
-#include "score.h"
 
 #include <base/system.h>
 
@@ -89,22 +89,16 @@ void CPlayer::Reset()
 	{
 		const ETimeSeason Season = time_season();
 		if(Season == SEASON_NEWYEAR)
-		{
 			m_DefEmote = EMOTE_HAPPY;
-		}
 		else if(Season == SEASON_HALLOWEEN)
 		{
 			m_DefEmote = EMOTE_ANGRY;
 			m_Halloween = true;
 		}
 		else
-		{
 			m_DefEmote = EMOTE_NORMAL;
-		}
 	}
 	m_OverrideEmoteReset = -1;
-
-	GameServer()->Score()->PlayerData(m_ClientID)->Reset();
 
 	m_Last_KickVote = 0;
 	m_Last_Team = 0;
@@ -122,9 +116,6 @@ void CPlayer::Reset()
 
 	// Variable initialized:
 	m_Last_Team = 0;
-	m_LastSQLQuery = 0;
-	m_ScoreQueryResult = nullptr;
-	m_ScoreFinishResult = nullptr;
 
 	int64_t Now = Server()->Tick();
 	int64_t TickSpeed = Server()->TickSpeed();
@@ -158,17 +149,6 @@ static int PlayerFlags_SixToSeven(int Flags)
 
 void CPlayer::Tick()
 {
-	if(m_ScoreQueryResult != nullptr && m_ScoreQueryResult->m_Completed && m_SentSnaps >= 3)
-	{
-		ProcessScoreResult(*m_ScoreQueryResult);
-		m_ScoreQueryResult = nullptr;
-	}
-	if(m_ScoreFinishResult != nullptr && m_ScoreFinishResult->m_Completed)
-	{
-		ProcessScoreResult(*m_ScoreFinishResult);
-		m_ScoreFinishResult = nullptr;
-	}
-
 	if(!Server()->ClientIngame(m_ClientID))
 		return;
 
@@ -217,7 +197,7 @@ void CPlayer::Tick()
 		Server()->ResetNetErrorString(m_ClientID);
 	}
 
-	if(!GameServer()->m_World.m_Paused)
+	if(!GameServer()->GameWorld(Server()->GetClientWorld(m_ClientID))->m_Paused)
 	{
 		int EarliestRespawnTick = m_PreviousDieTick + Server()->TickSpeed() * 3;
 		int RespawnTick = maximum(m_DieTick, EarliestRespawnTick) + 2;
@@ -251,8 +231,8 @@ void CPlayer::Tick()
 	}
 
 	m_TuneZoneOld = m_TuneZone; // determine needed tunings with viewpos
-	int CurrentIndex = GameServer()->Collision()->GetMapIndex(m_ViewPos);
-	m_TuneZone = GameServer()->Collision()->IsTune(CurrentIndex);
+	int CurrentIndex = GameServer()->Collision(Server()->GetClientWorld(m_ClientID))->GetMapIndex(m_ViewPos);
+	m_TuneZone = GameServer()->Collision(Server()->GetClientWorld(m_ClientID))->IsTune(CurrentIndex);
 
 	if(m_TuneZone != m_TuneZoneOld) // don't send tunings all the time
 	{
@@ -298,7 +278,7 @@ void CPlayer::PostPostTick()
 	if(!Server()->ClientIngame(m_ClientID))
 		return;
 
-	if(!GameServer()->m_World.m_Paused && !m_pCharacter && m_Spawning && m_WeakHookSpawn)
+	if(!GameServer()->GameWorld(Server()->GetClientWorld(m_ClientID))->m_Paused && !m_pCharacter && m_Spawning && m_WeakHookSpawn)
 		TryRespawn();
 }
 
@@ -579,7 +559,7 @@ void CPlayer::Respawn(bool WeakHook)
 CCharacter *CPlayer::ForceSpawn(vec2 Pos)
 {
 	m_Spawning = false;
-	m_pCharacter = new(m_ClientID) CCharacter(&GameServer()->m_World, GameServer()->GetLastPlayerInput(m_ClientID));
+	m_pCharacter = new(m_ClientID) CCharacter(GameServer()->GameWorld(Server()->GetClientWorld(m_ClientID)), Server()->GetClientWorld(m_ClientID), GameServer()->GetLastPlayerInput(m_ClientID));
 	m_pCharacter->Spawn(this, Pos);
 	m_Team = 0;
 	return m_pCharacter;
@@ -672,7 +652,7 @@ void CPlayer::TryRespawn()
 
 	m_WeakHookSpawn = false;
 	m_Spawning = false;
-	m_pCharacter = new(m_ClientID) CCharacter(&GameServer()->m_World, GameServer()->GetLastPlayerInput(m_ClientID));
+	m_pCharacter = new(m_ClientID) CCharacter(GameServer()->GameWorld(Server()->GetClientWorld(m_ClientID)), Server()->GetClientWorld(m_ClientID), GameServer()->GetLastPlayerInput(m_ClientID));
 	m_ViewPos = SpawnPos;
 	m_pCharacter->Spawn(this, SpawnPos);
 	GameServer()->CreatePlayerSpawn(SpawnPos, GameServer()->m_pController->GetMaskForPlayerWorldEvent(m_ClientID));
@@ -842,59 +822,6 @@ void CPlayer::SpectatePlayerName(const char *pName)
 		{
 			m_SpectatorID = i;
 			return;
-		}
-	}
-}
-
-void CPlayer::ProcessScoreResult(CScorePlayerResult &Result)
-{
-	if(Result.m_Success) // SQL request was successful
-	{
-		switch(Result.m_MessageKind)
-		{
-		case CScorePlayerResult::DIRECT:
-			for(auto &aMessage : Result.m_Data.m_aaMessages)
-			{
-				if(aMessage[0] == 0)
-					break;
-				GameServer()->SendChatTarget(m_ClientID, aMessage);
-			}
-			break;
-		case CScorePlayerResult::ALL:
-		{
-			bool PrimaryMessage = true;
-			for(auto &aMessage : Result.m_Data.m_aaMessages)
-			{
-				if(aMessage[0] == 0)
-					break;
-
-				if(GameServer()->ProcessSpamProtection(m_ClientID) && PrimaryMessage)
-					break;
-
-				GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aMessage, -1);
-				PrimaryMessage = false;
-			}
-			break;
-		}
-		case CScorePlayerResult::BROADCAST:
-			if(Result.m_Data.m_aBroadcast[0] != 0)
-				GameServer()->SendBroadcast(Result.m_Data.m_aBroadcast, -1);
-			break;
-		case CScorePlayerResult::MAP_VOTE:
-			GameServer()->m_VoteType = CGameContext::VOTE_TYPE_OPTION;
-			GameServer()->m_LastMapVote = time_get();
-
-			char aCmd[256];
-			str_format(aCmd, sizeof(aCmd),
-				"sv_reset_file types/%s/flexreset.cfg; change_map \"%s\"",
-				Result.m_Data.m_MapVote.m_aServer, Result.m_Data.m_MapVote.m_aMap);
-
-			char aChatmsg[512];
-			str_format(aChatmsg, sizeof(aChatmsg), "'%s' called vote to change server option '%s' (%s)",
-				Server()->ClientName(m_ClientID), Result.m_Data.m_MapVote.m_aMap, "/map");
-
-			GameServer()->CallVote(m_ClientID, Result.m_Data.m_MapVote.m_aMap, aCmd, "/map", aChatmsg);
-			break;
 		}
 	}
 }

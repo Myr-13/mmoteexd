@@ -1918,7 +1918,6 @@ set_src(ENGINE_INTERFACE GLOB src/engine
   console.h
   demo.h
   discord.h
-  editor.h
   engine.h
   favorites.h
   friends.h
@@ -2056,135 +2055,9 @@ if(CLIENT)
   add_library(${TARGET_STEAMAPI} ${STEAMAPI_KIND} ${STEAMAPI_SRC})
   list(APPEND TARGETS_OWN ${TARGET_STEAMAPI})
 
-  set_src(ENGINE_CLIENT GLOB_RECURSE src/engine/client
-    backend/backend_base.cpp
-    backend/backend_base.h
-    backend/glsl_shader_compiler.cpp
-    backend/glsl_shader_compiler.h
-    backend/null/backend_null.cpp
-    backend/null/backend_null.h
-    backend/opengl/backend_opengl.cpp
-    backend/opengl/backend_opengl.h
-    backend/opengl/backend_opengl3.cpp
-    backend/opengl/backend_opengl3.h
-    backend/opengl/opengl_sl.cpp
-    backend/opengl/opengl_sl.h
-    backend/opengl/opengl_sl_program.cpp
-    backend/opengl/opengl_sl_program.h
-    backend/opengles/backend_opengles.cpp
-    backend/opengles/backend_opengles3.cpp
-    backend/opengles/backend_opengles3.h
-    backend/opengles/gles_class_defines.h
-    backend/opengles/opengles_sl.cpp
-    backend/opengles/opengles_sl_program.cpp
-    backend/vulkan/backend_vulkan.cpp
-    backend/vulkan/backend_vulkan.h
-    backend_sdl.cpp
-    backend_sdl.h
-    blocklist_driver.cpp
-    blocklist_driver.h
-    checksum.h
-    client.cpp
-    client.h
-    demoedit.cpp
-    demoedit.h
-    discord.cpp
-    favorites.cpp
-    friends.cpp
-    friends.h
-    ghost.cpp
-    ghost.h
-    graph.cpp
-    graph.h
-    graphics_defines.h
-    graphics_threaded.cpp
-    graphics_threaded.h
-    input.cpp
-    input.h
-    keynames.h
-    notifications.cpp
-    notifications.h
-    serverbrowser.cpp
-    serverbrowser.h
-    serverbrowser_http.cpp
-    serverbrowser_http.h
-    serverbrowser_ping_cache.cpp
-    serverbrowser_ping_cache.h
-    smooth_time.cpp
-    smooth_time.h
-    sound.cpp
-    sound.h
-    sqlite.cpp
-    steam.cpp
-    text.cpp
-    updater.cpp
-    updater.h
-    video.cpp
-    video.h
-    warning.cpp
-  )
-
+  file(GLOB_RECURSE ENGINE_CLIENT "src/engine/client/*.cpp" "src/engine/client/*.h")
   file(GLOB_RECURSE GAME_CLIENT "src/game/client/*.cpp" "src/game/client/*.h")
 
-  set_src(GAME_EDITOR GLOB_RECURSE src/game/editor
-    auto_map.cpp
-    auto_map.h
-    component.cpp
-    component.h
-    editor.cpp
-    editor.h
-    editor_action.h
-    editor_actions.cpp
-    editor_actions.h
-    editor_history.cpp
-    editor_history.h
-    editor_object.cpp
-    editor_object.h
-    editor_props.cpp
-    editor_trackers.cpp
-    editor_trackers.h
-    explanations.cpp
-    map_grid.cpp
-    map_grid.h
-    map_view.cpp
-    map_view.h
-    mapitems.h
-    mapitems/envelope.cpp
-    mapitems/envelope.h
-    mapitems/image.cpp
-    mapitems/image.h
-    mapitems/layer.h
-    mapitems/layer_front.cpp
-    mapitems/layer_front.h
-    mapitems/layer_game.cpp
-    mapitems/layer_game.h
-    mapitems/layer_group.cpp
-    mapitems/layer_group.h
-    mapitems/layer_quads.cpp
-    mapitems/layer_quads.h
-    mapitems/layer_sounds.cpp
-    mapitems/layer_sounds.h
-    mapitems/layer_speedup.cpp
-    mapitems/layer_speedup.h
-    mapitems/layer_switch.cpp
-    mapitems/layer_switch.h
-    mapitems/layer_tele.cpp
-    mapitems/layer_tele.h
-    mapitems/layer_tiles.cpp
-    mapitems/layer_tiles.h
-    mapitems/layer_tune.cpp
-    mapitems/layer_tune.h
-    mapitems/map.cpp
-    mapitems/map_io.cpp
-    mapitems/sound.cpp
-    mapitems/sound.h
-    popups.cpp
-    proof_mode.cpp
-    proof_mode.h
-    smooth_value.cpp
-    smooth_value.h
-    tileart.cpp
-  )
   set(GAME_GENERATED_CLIENT
     src/game/generated/checksum.cpp
     src/game/generated/client_data.cpp
@@ -2192,7 +2065,7 @@ if(CLIENT)
     src/game/generated/client_data7.cpp
     src/game/generated/client_data7.h
   )
-  set(CLIENT_SRC ${ENGINE_CLIENT} ${PLATFORM_CLIENT} ${GAME_CLIENT} ${GAME_EDITOR} ${GAME_GENERATED_CLIENT})
+  set(CLIENT_SRC ${ENGINE_CLIENT} ${PLATFORM_CLIENT} ${GAME_CLIENT} ${GAME_GENERATED_CLIENT})
 
   set(DEPS_CLIENT ${DEPS} ${GLEW_DEP} ${WAVPACK_DEP})
 
@@ -2341,32 +2214,7 @@ if(SERVER)
     antibot_null.cpp
   )
 
-  set_src(ENGINE_SERVER GLOB_RECURSE src/engine/server
-    antibot.cpp
-    antibot.h
-    authmanager.cpp
-    authmanager.h
-    databases/connection.cpp
-    databases/connection.h
-    databases/connection_pool.cpp
-    databases/connection_pool.h
-    databases/mysql.cpp
-    databases/sqlite.cpp
-    main.cpp
-    name_ban.cpp
-    name_ban.h
-    register.cpp
-    register.h
-    server.cpp
-    server.h
-    server_logger.cpp
-    server_logger.h
-    sql_string_helpers.cpp
-    sql_string_helpers.h
-    upnp.cpp
-    upnp.h
-  )
-
+  file(GLOB_RECURSE ENGINE_SERVER "src/engine/server/*.cpp" "src/engine/server/*.h")
   file(GLOB_RECURSE GAME_SERVER "src/game/server/*.cpp" "src/game/server/*.h")
 
   set(GAME_GENERATED_SERVER

@@ -220,26 +220,6 @@ void CGameWorld::Tick()
 
 	RemoveEntities();
 
-	// update switch state
-	for(auto &Switcher : Switchers())
-	{
-		for(int j = 0; j < MAX_CLIENTS; ++j)
-		{
-			if(Switcher.m_aEndTick[j] <= GameTick() && Switcher.m_aType[j] == TILE_SWITCHTIMEDOPEN)
-			{
-				Switcher.m_aStatus[j] = false;
-				Switcher.m_aEndTick[j] = 0;
-				Switcher.m_aType[j] = TILE_SWITCHCLOSE;
-			}
-			else if(Switcher.m_aEndTick[j] <= GameTick() && Switcher.m_aType[j] == TILE_SWITCHTIMEDCLOSE)
-			{
-				Switcher.m_aStatus[j] = true;
-				Switcher.m_aEndTick[j] = 0;
-				Switcher.m_aType[j] = TILE_SWITCHOPEN;
-			}
-		}
-	}
-
 	OnModified();
 }
 

@@ -174,7 +174,6 @@ private:
 	class IDemoPlayer *m_pDemoPlayer;
 	class IFavorites *m_pFavorites;
 	class IServerBrowser *m_pServerBrowser;
-	class IEditor *m_pEditor;
 	class IFriends *m_pFriends;
 	class IFriends *m_pFoes;
 #if defined(CONF_AUTOUPDATE)
@@ -245,7 +244,6 @@ public:
 	class CRenderTools *RenderTools() { return &m_RenderTools; }
 	class CLayers *Layers() { return &m_Layers; }
 	CCollision *Collision() { return &m_Collision; }
-	class IEditor *Editor() { return m_pEditor; }
 	class IFriends *Friends() { return m_pFriends; }
 	class IFriends *Foes() { return m_pFoes; }
 #if defined(CONF_AUTOUPDATE)
