@@ -1,4 +1,4 @@
-EntityManager.Register("basic_wall", {
+EntityManager.Register("spell_healing_rain", {
 	Pos = nil,
 	Dir = nil,
 	SnapID = 0,
@@ -77,6 +77,10 @@ EntityManager.Register("basic_wall", {
 	end,
 
 	OnSnap = function(self, ClientID)
+		if self:NetworkClipped(ClientID) then
+			return
+		end
+		
 		for i = 2, self.SegmentsHalf - 1 do
 			angle = i * math.pi / (self.SegmentsHalf - 1)
 			angle2 = (i + 1) * math.pi / (self.SegmentsHalf - 1)
@@ -113,8 +117,8 @@ EntityManager.Register("basic_wall", {
 			Item.Flags = 0
 		end
 		for i = 1, 6 do
-			local t = math.random()  -- Parameter to interpolate between points
-			local u = math.random()  -- Parameter to interpolate between points
+			local t = math.random()
+			local u = math.random()
 
 			if t + u <= 1 then
 				local x = (1 - t) * rotatedX3 + t * rotatedX2 + u * (1 - t) * rotatedX2 + u * t * rotatedX
@@ -128,7 +132,7 @@ EntityManager.Register("basic_wall", {
 				Item.Type = 0
 				Item.StartTick = Game.Server.Tick
 			else
-				i = i - 1  -- If the point is outside the "<" symbol, try again
+				i = i - 1
 			end
 		end
 	end

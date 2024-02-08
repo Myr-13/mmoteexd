@@ -1,4 +1,4 @@
-EntityManager.Register("basic_slowdown", {
+EntityManager.Register("spell_slowdown", {
 	Pos = nil,
 	Dir = nil,
 	SnapID = 0,
@@ -62,6 +62,10 @@ EntityManager.Register("basic_slowdown", {
 	end,
 
 	OnSnap = function(self, ClientID)
+		if self:NetworkClipped(ClientID) then
+			return
+		end
+		
 		local Step = (math.pi * 2) / self.Segments
         for i = 1, self.Segments do
             local a = Step * i

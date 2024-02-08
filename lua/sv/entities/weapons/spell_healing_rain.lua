@@ -52,7 +52,6 @@ EntityManager.Register("spell_healing_rain", {
 		Ent = World.GetFirstCharacterInRadius(self.Pos, self.StartedTick)
 		if Ent then
 			if Game.Server.Tick % 50 == 0 then
-				print("123123")
 				Ent.Health = math.clamp(Ent.Health + self.Heal, 0, Ent.MaxHealth)
 			end
 			return
@@ -60,6 +59,9 @@ EntityManager.Register("spell_healing_rain", {
 	end,
 
 	OnSnap = function(self, ClientID)
+		if self:NetworkClipped(ClientID) then
+			return
+		end
 		for i = 1, 10 do
 			local t = math.random()
 
