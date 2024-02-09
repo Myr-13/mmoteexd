@@ -22,9 +22,27 @@ TILE_JOB_LOADER = 132
 TILE_SWITCH_CLAN_SPAWN = 148
 TILE_SWITCH_CLAN = 149
 TILE_SWITCH_MOB = 150
+TILE_SWITCH_JOB = 164  -- UNUSED
+TILE_SWITCH_WORLD = 165
 
 
 function IsSolid(WorldID, x, y)
 	local ID = Game.Collision(WorldID):GetTile(x, y)
 	return (ID == TILE_HOOK or ID == TILE_NOHOOK)
+end
+
+
+function GetSwitchTile(WorldID, x, y)
+	-- TODO: Add case, when switch tile is not exists
+
+	local Width = Game.Collision(WorldID).Width
+	local Height = Game.Collision(WorldID).Height
+
+	x = math.clamp(math.floor(x / 32), 0, Width - 1)
+	y = math.clamp(math.floor(y / 32), 0, Height - 1)
+
+	local Layers = Game.Collision(WorldID).Layers
+	local Switch = Layers.Switch
+	
+	return Layers:GetTile(Switch, y * Width + x)
 end

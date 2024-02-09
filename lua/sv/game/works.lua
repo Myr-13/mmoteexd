@@ -72,16 +72,17 @@ end
 
 
 local function InitJobs(WorldID)
-	local Layers = Game.Collision(WorldID).Layers
+	local Collision = Game.Collision(WorldID)
+	local Layers = Collision.Layers
 	local Switch = Layers.Switch
-	local Width = Game.Collision(WorldID).Width
+	local Width = Collision.Width
 
-	for y = 0, Game.Collision(WorldID).Height - 1 do
+	for y = 0, Collision.Height - 1 do
 		for x = 0, Width - 1 do
 			local Tile = Layers:GetTile(Switch, y * Width + x)
 			local SwitchID = Tile.Type
 			local RealPos = vec2(x * 32 + 16, y * 32 + 16)
-			local ID = Game.Collision(WorldID):GetTile(RealPos.x, RealPos.y)
+			local ID = Collision:GetTile(RealPos.x, RealPos.y)
 
 			if IsSolid(WorldID, RealPos.x, RealPos.y + 32) then
 				RealPos.y = RealPos.y + 16

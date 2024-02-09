@@ -5,19 +5,21 @@ local function HandleTiles(CID, Ply, WorldID)
 	end
 
 	local Tile = Game.Collision(WorldID):GetTile(Chr.Pos.x, Chr.Pos.y)
+	local SwitchTile = GetSwitchTile(WorldID, Chr.Pos.x, Chr.Pos.y)
+	local SwitchTileID = SwitchTile.Type
 
+	-- Chairs
 	if Tile == TILE_PLUS_5 and Game.Server.Tick % 50 == 0 then
 		GiveExp(CID, 5)
 
 		Player.SendBroadcast(CID, "+5 exp from chair")
-	end
-
-	if Tile == TILE_PLUS_10 and Game.Server.Tick % 50 == 0 then
+	elseif Tile == TILE_PLUS_10 and Game.Server.Tick % 50 == 0 then
 		GiveExp(CID, 10)
 
 		Player.SendBroadcast(CID, "+10 exp from chair")
 	end
 
+	-- Water
 	if Tile == TILE_WATER then
 		Chr.Core.Vel.y = Chr.Core.Vel.y - 0.75
 
@@ -32,6 +34,11 @@ local function HandleTiles(CID, Ply, WorldID)
 		end
 
 		Player.SetData(CID, "InWater", false)
+	end
+
+	-- Switch layer
+	if SwitchTileID == TILE_SWITCH_WORLD then
+		Game.GameServer.MultiWorldManager:ChangeWorld(CID, SwitchTile.Number - 1)
 	end
 end
 

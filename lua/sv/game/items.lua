@@ -1,10 +1,11 @@
 TYPE_ITEM = 0
 TYPE_USABLE = 1
 TYPE_WEAPON = 2
-TYPE_ARMOR = 3
-TYPE_ACCESSORY = 4
+TYPE_EQUIP = 3
 
 SLOT_WEAPONS = 1
+SLOT_ARMOR_BODY = 2
+SLOT_ARMOR_FEET = 3
 
 DAMAGE_TYPE_MELEE = 0
 DAMAGE_TYPE_RANGE = 1
@@ -33,6 +34,7 @@ end
 -- Add all items
 include("sv/game/items/base.lua")
 include("sv/game/items/weapons.lua")
+include("sv/game/items/armor.lua")
 
 Hook.Add("OnConsoleInit", "ItemsCommands", function()
 	Console.RegisterRcon("reload_items", "", "Reload all items from lua", function(Result)
@@ -43,18 +45,43 @@ Hook.Add("OnConsoleInit", "ItemsCommands", function()
 	end)
 end)
 
+
 -- Other utility functions
 function GetItemName(ID)
-	return _Items[ID] and _Items[ID].Name or "[ERROR ITEM]"
+	return _Items[ID] and _Items[ID].Name or string.format("[ERROR ITEM %d]", (not ID) and -1 or ID)
 end
+
 
 function GetItemType(ID)
 	return _Items[ID] and _Items[ID].Type or TYPE_ITEM
 end
 
+
 function GetItemData(ID)
 	return _Items[ID] and _Items[ID].Data or nil
 end
+
+
+function EquipItem(CID, ID)
+	local ItemData = GetItemData(ID)
+	if not ItemData then
+		return
+	end
+
+	local Equip = Player.GetData(CID, "Equip")
+	local Slot = ItemData["EquipSlot"]
+	local Equipment = Equip[Slot]
+
+	if #Equipment >= ItemData["EquipCount"] then
+		Equipment = table.clear(Equipment)
+	else
+		table.insert(Equipment, ID)
+	end
+
+	Equip[Slot] = Equipment
+	Player.SetData(CID, "Equip", Equip)
+end
+
 
 function FireWeapon(CID, ID)
 	local ItemData = GetItemData(ID)

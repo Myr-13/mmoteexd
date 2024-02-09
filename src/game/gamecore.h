@@ -15,7 +15,6 @@
 #include "prng.h"
 
 class CCollision;
-class CTeamsCore;
 
 class CTuneParam
 {
@@ -274,8 +273,8 @@ public:
 
 	int m_TriggeredEvents;
 
-	void Init(CWorldCore *pWorld, CCollision *pCollision, CTeamsCore *pTeams = nullptr, std::map<int, std::vector<vec2>> *pTeleOuts = nullptr);
-	void SetCoreWorld(CWorldCore *pWorld, CCollision *pCollision, CTeamsCore *pTeams);
+	void Init(CWorldCore *pWorld, CCollision *pCollision, std::map<int, std::vector<vec2>> *pTeleOuts = nullptr);
+	void SetCoreWorld(CWorldCore *pWorld, CCollision *pCollision);
 	void Reset();
 	void TickDeferred();
 	void Tick(bool UseInput, bool DoDeferredTick = true);
@@ -294,7 +293,6 @@ public:
 	bool m_LeftWall;
 
 	// DDNet Character
-	void SetTeamsCore(CTeamsCore *pTeams);
 	void SetTeleOuts(std::map<int, std::vector<vec2>> *pTeleOuts);
 	void ReadDDNet(const CNetObj_DDNetCharacter *pObjDDNet);
 	bool m_Solo;
@@ -319,7 +317,6 @@ public:
 	CTuningParams m_Tuning;
 
 private:
-	CTeamsCore *m_pTeams;
 	int m_MoveRestrictions;
 	int m_HookedPlayer;
 	static bool IsSwitchActiveCb(int Number, void *pUser);

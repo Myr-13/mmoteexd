@@ -70,24 +70,22 @@ float VelocityRamp(float Value, float Start, float Range, float Curvature)
 	return 1.0f / std::pow(Curvature, (Value - Start) / Range);
 }
 
-void CCharacterCore::Init(CWorldCore *pWorld, CCollision *pCollision, CTeamsCore *pTeams, std::map<int, std::vector<vec2>> *pTeleOuts)
+void CCharacterCore::Init(CWorldCore *pWorld, CCollision *pCollision, std::map<int, std::vector<vec2>> *pTeleOuts)
 {
 	m_pWorld = pWorld;
 	m_pCollision = pCollision;
 	m_pTeleOuts = pTeleOuts;
 
-	m_pTeams = pTeams;
 	m_Id = -1;
 
 	// fail safe, if core's tuning didn't get updated at all, just fallback to world tuning.
 	m_Tuning = m_pWorld->m_aTuning[g_Config.m_ClDummy];
 }
 
-void CCharacterCore::SetCoreWorld(CWorldCore *pWorld, CCollision *pCollision, CTeamsCore *pTeams)
+void CCharacterCore::SetCoreWorld(CWorldCore *pWorld, CCollision *pCollision)
 {
 	m_pWorld = pWorld;
 	m_pCollision = pCollision;
-	m_pTeams = pTeams;
 }
 
 void CCharacterCore::Reset()
@@ -295,7 +293,7 @@ void CCharacterCore::Tick(bool UseInput, bool DoDeferredTick)
 			for(int i = 0; i < MAX_CLIENTS; i++)
 			{
 				CCharacterCore *pCharCore = m_pWorld->m_apCharacters[i];
-				if(!pCharCore || pCharCore == this || (!(m_Super || pCharCore->m_Super) && ((m_Id != -1 && !m_pTeams->CanCollide(i, m_Id)) || pCharCore->m_Solo || m_Solo)))
+				if(!pCharCore || pCharCore == this || (!(m_Super || pCharCore->m_Super) && ((m_Id != -1 || pCharCore->m_Solo || m_Solo))))
 					continue;
 
 				vec2 ClosestPoint;
@@ -376,7 +374,7 @@ void CCharacterCore::Tick(bool UseInput, bool DoDeferredTick)
 		if(m_HookedPlayer != -1 && m_pWorld)
 		{
 			CCharacterCore *pCharCore = m_pWorld->m_apCharacters[m_HookedPlayer];
-			if(pCharCore && m_Id != -1 && m_pTeams->CanKeepHook(m_Id, pCharCore->m_Id))
+			if(pCharCore && m_Id != -1)
 				m_HookPos = pCharCore->m_Pos;
 			else
 			{
@@ -458,7 +456,7 @@ void CCharacterCore::TickDeferred()
 			// player *p = (player*)ent;
 			// if(pCharCore == this) // || !(p->flags&FLAG_ALIVE)
 
-			if(pCharCore == this || (m_Id != -1 && !m_pTeams->CanCollide(m_Id, i)))
+			if(pCharCore == this || m_Id != -1)
 				continue; // make sure that we don't nudge our self
 
 			if(!(m_Super || pCharCore->m_Super) && (m_Solo || pCharCore->m_Solo))
@@ -622,7 +620,7 @@ void CCharacterCore::Move()
 					CCharacterCore *pCharCore = m_pWorld->m_apCharacters[p];
 					if(!pCharCore || pCharCore == this)
 						continue;
-					if((!(pCharCore->m_Super || m_Super) && (m_Solo || pCharCore->m_Solo || pCharCore->m_CollisionDisabled || (m_Id != -1 && !m_pTeams->CanCollide(m_Id, p)))))
+					if((!(pCharCore->m_Super || m_Super) && (m_Solo || pCharCore->m_Solo || pCharCore->m_CollisionDisabled || m_Id != -1)))
 						continue;
 					float D = distance(Pos, pCharCore->m_Pos);
 					if(D < PhysicalSize() && D >= 0.0f)
@@ -766,12 +764,6 @@ void CCharacterCore::SetHookedPlayer(int HookedPlayer)
 }
 
 // DDRace
-
-void CCharacterCore::SetTeamsCore(CTeamsCore *pTeams)
-{
-	m_pTeams = pTeams;
-}
-
 void CCharacterCore::SetTeleOuts(std::map<int, std::vector<vec2>> *pTeleOuts)
 {
 	m_pTeleOuts = pTeleOuts;
@@ -779,10 +771,6 @@ void CCharacterCore::SetTeleOuts(std::map<int, std::vector<vec2>> *pTeleOuts)
 
 bool CCharacterCore::IsSwitchActiveCb(int Number, void *pUser)
 {
-	CCharacterCore *pThis = (CCharacterCore *)pUser;
-	if(pThis->m_pWorld && !pThis->m_pWorld->m_vSwitchers.empty())
-		if(pThis->m_Id != -1 && pThis->m_pTeams->Team(pThis->m_Id) != (pThis->m_pTeams->m_IsDDRace16 ? VANILLA_TEAM_SUPER : TEAM_SUPER))
-			return pThis->m_pWorld->m_vSwitchers[Number].m_aStatus[pThis->m_pTeams->Team(pThis->m_Id)];
 	return false;
 }
 

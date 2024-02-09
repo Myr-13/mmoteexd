@@ -140,11 +140,14 @@ local function ChatLogin(Result)
 			table.insert(Equip[Slot], Stmt:GetInt(2))
 		end
 
-		if not Equip[1] then
-			Equip[1] = {
+		if not Equip[SLOT_WEAPONS] then
+			Equip[SLOT_WEAPONS] = {
 				2  -- 2 = Hammer
 			}
 		end
+
+		if not Equip[SLOT_ARMOR_BODY] then Equip[SLOT_ARMOR_BODY] = {} end
+		if not Equip[SLOT_ARMOR_FEET] then Equip[SLOT_ARMOR_FEET] = {} end 
 
 		Player.SetData(CID, "Equip", Equip)
 

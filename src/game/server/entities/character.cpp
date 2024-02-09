@@ -776,20 +776,20 @@ void CCharacter::TickDeferred()
 	}
 
 	{
-		int Events = m_Core.m_TriggeredEvents;
-		int CID = m_pPlayer->GetCID();
+		//int Events = m_Core.m_TriggeredEvents;
+		//int CID = m_pPlayer->GetCID();
 
-		if(Events & COREEVENT_GROUND_JUMP)
-			GameServer()->CreateSound(m_Pos, SOUND_PLAYER_JUMP);
+		//if(Events & COREEVENT_GROUND_JUMP)
+		//	GameServer()->CreateSound(m_Pos, SOUND_PLAYER_JUMP);
 
-		if(Events & COREEVENT_HOOK_ATTACH_PLAYER)
-			GameServer()->CreateSound(m_Pos, SOUND_HOOK_ATTACH_PLAYER);
+		//if(Events & COREEVENT_HOOK_ATTACH_PLAYER)
+		//	GameServer()->CreateSound(m_Pos, SOUND_HOOK_ATTACH_PLAYER);
 
-		if(Events & COREEVENT_HOOK_ATTACH_GROUND)
-			GameServer()->CreateSound(m_Pos, SOUND_HOOK_ATTACH_GROUND);
+		//if(Events & COREEVENT_HOOK_ATTACH_GROUND)
+		//	GameServer()->CreateSound(m_Pos, SOUND_HOOK_ATTACH_GROUND);
 
-		if(Events & COREEVENT_HOOK_HIT_NOHOOK)
-			GameServer()->CreateSound(m_Pos, SOUND_HOOK_NOATTACH);
+		//if(Events & COREEVENT_HOOK_HIT_NOHOOK)
+		//	GameServer()->CreateSound(m_Pos, SOUND_HOOK_NOATTACH);
 	}
 
 	if(m_pPlayer->GetTeam() == TEAM_SPECTATORS)
@@ -897,6 +897,12 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 //TODO: Move the emote stuff to a function
 void CCharacter::SnapCharacter(int SnappingClient, int ID)
 {
+	int ClientWorld1 = Server()->GetClientWorld(SnappingClient);
+	int ClientWorld2 = Server()->GetClientWorld(m_pPlayer->GetCID());
+
+	if(ClientWorld1 != ClientWorld2)
+		return;
+
 	int SnappingClientVersion = GameServer()->GetClientVersion(SnappingClient);
 	CCharacterCore *pCore;
 	int Tick, Emote = m_EmoteType, Weapon = m_Core.m_ActiveWeapon, AmmoCount = 0,

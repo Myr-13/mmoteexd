@@ -8,6 +8,7 @@ local MENU_INVENTORY = 3
 local MENU_ITEM = 4
 local MENU_UPGRADES = 5
 local MENU_WORKS = 6
+local MENU_EQUIPMENT = 7
 
 for i = 0, 63 do
 	_Votes[i] = {}
@@ -66,6 +67,7 @@ local function RebuildMenu(CID)
 	local Inv = Player.GetData(CID, "Inventory")
 	local Stats = Player.GetData(CID, "Stats")
 	local Works = Player.GetData(CID, "Works")
+	local Equip = Player.GetData(CID, "Equip")
 
 	if _VoteMenus[CID] == MENU_ACCOUNT then
 		AddVoteLabel(CID, "┌─ Profile info")
@@ -77,9 +79,10 @@ local function RebuildMenu(CID)
 		AddVoteLabel(CID, "├─ Server")
 		AddVoteMenuFormat(CID, MENU_SERVER_INFO, "│ ☞ Info")
 		AddVoteLabel(CID, "├─ Account menu")
-		AddVoteMenuFormat(CID, MENU_INVENTORY, "│ ☞ Inventory")
 		AddVoteMenuFormat(CID, MENU_UPGRADES, "│ ☞ Stats")
 		AddVoteMenuFormat(CID, MENU_WORKS, "│ ☞ Works")
+		AddVoteMenuFormat(CID, MENU_INVENTORY, "│ ☞ Inventory")
+		AddVoteMenuFormat(CID, MENU_EQUIPMENT, "│ ☞ Equipment")
 		AddVoteLabel(CID, "└──────────────────")
 	elseif _VoteMenus[CID] == MENU_SERVER_INFO then
 		AddBack(CID, MENU_ACCOUNT)
@@ -148,6 +151,39 @@ local function RebuildMenu(CID)
 		AddVoteLabel(CID, "└──────────────────")
 
 		AddBack(CID, MENU_ACCOUNT)
+	elseif _VoteMenus[CID] == MENU_EQUIPMENT then
+		local SelectedEquipSlot = Player.GetData(CID, "SelectedEquipSlot")
+
+		AddVoteLabel(CID, "┌─ Armor")
+		AddVoteFormat(
+			CID,
+			"select_equip_slot" .. tostring(SLOT_ARMOR_BODY),
+			"│ • Body: %s", (#Equip[SLOT_ARMOR_BODY] ~= 0) and GetItemName(Equip[SLOT_ARMOR_BODY][1]) or "None")
+		AddVoteFormat(
+			CID,
+			"select_equip_slot" .. tostring(SLOT_ARMOR_FEET),
+			"│ • Feet: %s", (#Equip[SLOT_ARMOR_FEET] ~= 0) and GetItemName(Equip[SLOT_ARMOR_FEET][1]) or "None")
+		AddVoteLabel(CID, "├─ Weapons")
+
+		for k, ItemID in pairs(Equip[SLOT_WEAPONS]) do
+			AddVoteLabel(CID, "│ • %d - %s", k, GetItemName(ItemID))
+		end
+
+		if SelectedEquipSlot then
+			AddVoteLabel(CID, "├─ Items")
+
+			for ItemID, _ in pairs(Inv) do
+				local ItemData = GetItemData(ItemID)
+
+				if ItemData and ItemData["EquipSlot"] == SelectedEquipSlot then
+					AddVoteFormat(CID, "select_equip" .. tostring(ItemID), "│ • %s", GetItemName(ItemID))
+				end
+			end
+		end
+
+		AddVoteLabel(CID, "└──────────────────")
+
+		AddBack(CID, MENU_ACCOUNT)
 	elseif _VoteMenus[CID] == MENU_NONE then
 		-- Just empty
 	else
@@ -162,6 +198,8 @@ local function HandleCmd(CID, Cmd)
 	if string.starts_with(Cmd, "menu") then
 		_VoteMenus[CID] = tonumber(string.ex_match(Cmd, "%d+")[1])
 		RebuildMenu(CID)
+
+		return
 	end
 
 	-- Select item in inventory
@@ -169,6 +207,8 @@ local function HandleCmd(CID, Cmd)
 		Player.SetData(CID, "SelectedItem", tonumber(string.ex_match(Cmd, "%d+")[1]))
 		_VoteMenus[CID] = MENU_ITEM
 		RebuildMenu(CID)
+
+		return
 	end
 
 	-- Use item
@@ -184,6 +224,8 @@ local function HandleCmd(CID, Cmd)
 
 		_VoteMenus[CID] = MENU_INVENTORY
 		RebuildMenu(CID)
+
+		return
 	end
 
 	-- Stats upgrade
@@ -212,6 +254,26 @@ local function HandleCmd(CID, Cmd)
 
 		UpdatePlayerStats(CID)
 		RebuildMenu(CID)
+
+		return
+	end
+
+	-- Select equipment slot
+	if string.starts_with(Cmd, "select_equip_slot") then
+		Player.SetData(CID, "SelectedEquipSlot", tonumber(string.ex_match(Cmd, "%d+")[1]))
+
+		RebuildMenu(CID)
+
+		return
+	end
+
+	-- Select equipment
+	if string.starts_with(Cmd, "select_equip") then
+		EquipItem(CID, tonumber(string.ex_match(Cmd, "%d+")[1]))
+
+		RebuildMenu(CID)
+
+		return
 	end
 end
 
