@@ -68,6 +68,10 @@
 #include <thread>
 #include <tuple>
 
+#include <engine/client/imgui/backends/imgui_impl_opengl3.h>
+#include <engine/client/imgui/backends/imgui_impl_sdl2.h>
+#include <engine/client/imgui/imgui.h>
+
 using namespace std::chrono_literals;
 
 static const ColorRGBA gs_ClientNetworkPrintColor{0.7f, 1, 0.7f, 1.0f};
@@ -899,8 +903,14 @@ void CClient::Render()
 		Graphics()->Clear(bg.r, bg.g, bg.b);
 	}
 
+	ImGui_ImplOpenGL3_NewFrame();
+	ImGui_ImplSDL2_NewFrame();
+	ImGui::NewFrame();
+
 	GameClient()->OnRender();
 	DebugRender();
+
+	ImGui::Render();
 
 	if(State() == IClient::STATE_ONLINE && g_Config.m_ClAntiPingLimit)
 	{
@@ -2932,6 +2942,7 @@ void CClient::Run()
 					Render();
 				else
 					DebugRender();
+
 				m_pGraphics->Swap();
 			}
 			else if(!IsRenderActive)

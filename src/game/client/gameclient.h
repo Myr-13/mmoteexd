@@ -56,6 +56,7 @@
 
 // MMOTee
 #include <engine/shared/lua/lua_manager.h>
+#include "components/menus_imgui.h"
 
 class CGameInfo
 {
@@ -786,6 +787,7 @@ private:
 
 	// MMOTee
 	CLuaManager m_LuaManager;
+	CMenusImGui m_ImGuiMenus;
 
 	// TODO: Move this so struct
 	int m_FilesToDownload;

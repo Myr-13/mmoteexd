@@ -144,7 +144,8 @@ void CGameClient::OnConsoleInit()
 					      &m_Tooltips,
 					      &CMenus::m_Binder,
 					      &m_GameConsole,
-					      &m_MenuBackground});
+					      &m_MenuBackground,
+				              &m_ImGuiMenus});
 
 	// build the input stack
 	m_vpInput.insert(m_vpInput.end(), {&CMenus::m_Binder, // this will take over all input when we want to bind a key
@@ -1302,7 +1303,7 @@ void CGameClient::OnNewSnapshot()
 		CWorldCore TempWorld;
 		CCharacterCore TempCore = CCharacterCore();
 		CTeamsCore TempTeams = CTeamsCore();
-		TempCore.Init(&TempWorld, Collision(), &TempTeams);
+		TempCore.Init(&TempWorld, Collision());
 		TempCore.Read(pCharacter);
 		TempCore.m_ActiveWeapon = pCharacter->m_Weapon;
 
@@ -2720,12 +2721,12 @@ void CGameClient::DetectStrongHook()
 		for(int dir = 0; dir < 2; dir++)
 		{
 			CCharacterCore ToChar = pFromCharWorld->GetCore();
-			ToChar.Init(&World, Collision(), &m_Teams);
+			ToChar.Init(&World, Collision());
 			World.m_apCharacters[ToPlayer] = &ToChar;
 			ToChar.Read(&m_Snap.m_aCharacters[ToPlayer].m_Prev);
 
 			CCharacterCore FromChar = pFromCharWorld->GetCore();
-			FromChar.Init(&World, Collision(), &m_Teams);
+			FromChar.Init(&World, Collision());
 			World.m_apCharacters[FromPlayer] = &FromChar;
 			FromChar.Read(&m_Snap.m_aCharacters[FromPlayer].m_Prev);
 

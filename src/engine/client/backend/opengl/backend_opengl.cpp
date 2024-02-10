@@ -31,6 +31,8 @@
 #endif
 #endif
 
+#include <engine/client/imgui/backends/imgui_impl_opengl3.h>
+
 // ------------ CCommandProcessorFragment_OpenGL
 void CCommandProcessorFragment_OpenGL::Cmd_Update_Viewport(const CCommandBuffer::SCommand_Update_Viewport *pCommand)
 {
@@ -316,12 +318,15 @@ bool CCommandProcessorFragment_OpenGL::InitOpenGL(const SCommand_Init *pCommand)
 	TGLBackendReadPresentedImageData &ReadPresentedImgDataFunc = *pCommand->m_pReadPresentedImageDataFunc;
 	ReadPresentedImgDataFunc = [this](uint32_t &Width, uint32_t &Height, CImageInfo::EImageFormat &Format, std::vector<uint8_t> &vDstData) { return GetPresentedImageData(Width, Height, Format, vDstData); };
 
+	ImGui_ImplOpenGL3_Init("#version 330");
+	ImGui_ImplOpenGL3_NewFrame(); // Create shaders
+
 	const char *pVendorString = (const char *)glGetString(GL_VENDOR);
-	dbg_msg("opengl", "Vendor string: %s", pVendorString);
+	dbg_msg("opengl", "vendor string: %s", pVendorString);
 
 	// check what this context can do
 	const char *pVersionString = (const char *)glGetString(GL_VERSION);
-	dbg_msg("opengl", "Version string: %s", pVersionString);
+	dbg_msg("opengl", "version string: %s", pVersionString);
 
 	const char *pRendererString = (const char *)glGetString(GL_RENDERER);
 

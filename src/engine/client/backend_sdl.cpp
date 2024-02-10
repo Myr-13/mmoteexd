@@ -33,12 +33,11 @@
 #include "backend/opengles/backend_opengles3.h"
 #endif
 
-#if defined(CONF_BACKEND_VULKAN)
-#include "backend/vulkan/backend_vulkan.h"
-#endif
-
 #include "graphics_threaded.h"
 
+#include <engine/client/imgui/backends/imgui_impl_opengl3.h>
+#include <engine/client/imgui/backends/imgui_impl_sdl2.h>
+#include <engine/client/imgui/imgui.h>
 #include <engine/graphics.h>
 
 class IStorage;
@@ -215,7 +214,13 @@ void CCommandProcessorFragment_SDL::Cmd_Shutdown(const SCommand_Shutdown *pComma
 void CCommandProcessorFragment_SDL::Cmd_Swap(const CCommandBuffer::SCommand_Swap *pCommand)
 {
 	if(m_GLContext)
+	{
+		ImDrawData *pDrawData = ImGui::GetDrawData();
+		if(pDrawData)
+			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
 		SDL_GL_SwapWindow(m_pWindow);
+	}
 }
 
 void CCommandProcessorFragment_SDL::Cmd_VSync(const CCommandBuffer::SCommand_VSync *pCommand)
@@ -400,12 +405,6 @@ CCommandProcessor_SDL_GL::CCommandProcessor_SDL_GL(EBackendType BackendType, int
 		{
 			m_pGLBackend = new CCommandProcessorFragment_OpenGL3_3();
 		}
-#endif
-	}
-	else if(BackendType == BACKEND_TYPE_VULKAN)
-	{
-#if defined(CONF_BACKEND_VULKAN)
-		m_pGLBackend = CreateVulkanCommandProcessorFragment();
 #endif
 	}
 #endif
@@ -690,8 +689,6 @@ EBackendType CGraphicsBackend_SDL_GL::DetectBackend()
 	const char *pEnvDriver = SDL_getenv("DDNET_DRIVER");
 	if(pEnvDriver && str_comp_nocase(pEnvDriver, "GLES") == 0)
 		RetBackendType = BACKEND_TYPE_OPENGL_ES;
-	else if(pEnvDriver && str_comp_nocase(pEnvDriver, "Vulkan") == 0)
-		RetBackendType = BACKEND_TYPE_VULKAN;
 	else if(pEnvDriver && str_comp_nocase(pEnvDriver, "OpenGL") == 0)
 		RetBackendType = BACKEND_TYPE_OPENGL;
 	else if(pEnvDriver == nullptr)
@@ -700,8 +697,6 @@ EBackendType CGraphicsBackend_SDL_GL::DetectBackend()
 		const char *pConfBackend = g_Config.m_GfxBackend;
 		if(str_comp_nocase(pConfBackend, "GLES") == 0)
 			RetBackendType = BACKEND_TYPE_OPENGL_ES;
-		else if(str_comp_nocase(pConfBackend, "Vulkan") == 0)
-			RetBackendType = BACKEND_TYPE_VULKAN;
 		else if(str_comp_nocase(pConfBackend, "OpenGL") == 0)
 			RetBackendType = BACKEND_TYPE_OPENGL;
 	}
@@ -763,14 +758,6 @@ void CGraphicsBackend_SDL_GL::ClampDriverVersion(EBackendType BackendType)
 		g_Config.m_GfxGLPatch = 0;
 #endif
 	}
-	else if(BackendType == BACKEND_TYPE_VULKAN)
-	{
-#if defined(CONF_BACKEND_VULKAN)
-		g_Config.m_GfxGLMajor = gs_BackendVulkanMajor;
-		g_Config.m_GfxGLMinor = gs_BackendVulkanMinor;
-		g_Config.m_GfxGLPatch = 0;
-#endif
-	}
 }
 
 bool CGraphicsBackend_SDL_GL::ShowMessageBox(unsigned Type, const char *pTitle, const char *pMsg)
@@ -796,8 +783,6 @@ bool CGraphicsBackend_SDL_GL::IsModernAPI(EBackendType BackendType)
 		return (g_Config.m_GfxGLMajor == 3 && g_Config.m_GfxGLMinor == 3) || g_Config.m_GfxGLMajor >= 4;
 	else if(BackendType == BACKEND_TYPE_OPENGL_ES)
 		return g_Config.m_GfxGLMajor >= 3;
-	else if(BackendType == BACKEND_TYPE_VULKAN)
-		return true;
 
 	return false;
 }
@@ -863,21 +848,7 @@ bool CGraphicsBackend_SDL_GL::GetDriverVersion(EGraphicsDriverAgeType DriverAgeT
 		}
 #endif
 	}
-	else if(BackendType == BACKEND_TYPE_VULKAN)
-	{
-		pName = "Vulkan";
-#ifdef CONF_BACKEND_VULKAN
-		if(DriverAgeType == GRAPHICS_DRIVER_AGE_TYPE_DEFAULT)
-		{
-			Major = gs_BackendVulkanMajor;
-			Minor = gs_BackendVulkanMinor;
-			Patch = 0;
-			return true;
-		}
-#else
-		return false;
-#endif
-	}
+
 	return false;
 }
 
@@ -1032,24 +1003,6 @@ int CGraphicsBackend_SDL_GL::Init(const char *pName, int *pScreen, int *pWidth, 
 
 	EBackendType OldBackendType = m_BackendType;
 	m_BackendType = DetectBackend();
-	// little fallback for Vulkan
-	if(OldBackendType != BACKEND_TYPE_AUTO)
-	{
-		if(m_BackendType == BACKEND_TYPE_VULKAN)
-		{
-			// try default opengl settings
-			str_copy(g_Config.m_GfxBackend, "OpenGL");
-			g_Config.m_GfxGLMajor = 3;
-			g_Config.m_GfxGLMinor = 0;
-			g_Config.m_GfxGLPatch = 0;
-			// do another analysis round too, just in case
-			g_Config.m_Gfx3DTextureAnalysisRan = 0;
-			g_Config.m_GfxDriverIsBlocked = 0;
-
-			SDL_setenv("DDNET_DRIVER", "OpenGL", 1);
-			m_BackendType = DetectBackend();
-		}
-	}
 
 	ClampDriverVersion(m_BackendType);
 
@@ -1063,7 +1016,7 @@ int CGraphicsBackend_SDL_GL::Init(const char *pName, int *pScreen, int *pWidth, 
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, g_Config.m_GfxGLMinor);
 	}
 
-	dbg_msg("gfx", "Created %s %d.%d context.", ((m_BackendType == BACKEND_TYPE_VULKAN) ? "Vulkan" : "OpenGL"), g_Config.m_GfxGLMajor, g_Config.m_GfxGLMinor);
+	dbg_msg("gfx", "created OpenGL %d.%d context.", g_Config.m_GfxGLMajor, g_Config.m_GfxGLMinor);
 
 	if(m_BackendType == BACKEND_TYPE_OPENGL)
 	{
@@ -1197,10 +1150,7 @@ int CGraphicsBackend_SDL_GL::Init(const char *pName, int *pScreen, int *pWidth, 
 	if(m_pWindow == NULL)
 	{
 		dbg_msg("gfx", "unable to create window: %s", SDL_GetError());
-		if(m_BackendType == BACKEND_TYPE_VULKAN)
-			return EGraphicsBackendErrorCodes::GRAPHICS_BACKEND_ERROR_CODE_GL_CONTEXT_FAILED;
-		else
-			return EGraphicsBackendErrorCodes::GRAPHICS_BACKEND_ERROR_CODE_SDL_WINDOW_CREATE_FAILED;
+		return EGraphicsBackendErrorCodes::GRAPHICS_BACKEND_ERROR_CODE_SDL_WINDOW_CREATE_FAILED;
 	}
 
 	int GlewMajor = 0;
@@ -1244,6 +1194,18 @@ int CGraphicsBackend_SDL_GL::Init(const char *pName, int *pScreen, int *pWidth, 
 		SDL_GL_SetSwapInterval(Flags & IGraphicsBackend::INITFLAG_VSYNC ? 1 : 0);
 		SDL_GL_MakeCurrent(NULL, NULL);
 	}
+
+	// Setup imgui
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO &IO = ImGui::GetIO();
+	IO.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+
+	// Setup imguis style
+	ImGui::StyleColorsDark();
+
+	// Setup backend render
+	ImGui_ImplSDL2_InitForOpenGL(m_pWindow, m_GLContext);
 
 	if(InitError != 0)
 	{
@@ -1414,6 +1376,10 @@ int CGraphicsBackend_SDL_GL::Shutdown()
 	StopProcessor();
 	delete m_pProcessor;
 	m_pProcessor = nullptr;
+
+	ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplSDL2_Shutdown();
+	ImGui::DestroyContext();
 
 	if(m_GLContext != nullptr)
 		SDL_GL_DeleteContext(m_GLContext);

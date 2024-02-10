@@ -34,6 +34,8 @@
 // for platform specific features that aren't available or are broken in SDL
 #include <SDL_syswm.h>
 
+#include <engine/client/imgui/backends/imgui_impl_sdl2.h>
+
 void CInput::AddEvent(char *pText, int Key, int Flags)
 {
 	if(m_NumEvents != INPUT_BUFFER_SIZE)
@@ -81,7 +83,7 @@ void CInput::Init()
 	m_pGraphics = Kernel()->RequestInterface<IEngineGraphics>();
 	m_pConsole = Kernel()->RequestInterface<IConsole>();
 
-	MouseModeRelative();
+	//MouseModeRelative();
 
 	InitJoysticks();
 }
@@ -570,6 +572,8 @@ int CInput::Update()
 	bool IgnoreKeys = false;
 	while(SDL_PollEvent(&Event))
 	{
+		ImGui_ImplSDL2_ProcessEvent(&Event);
+
 		int Scancode = 0;
 		int Action = IInput::FLAG_PRESS;
 		switch(Event.type)

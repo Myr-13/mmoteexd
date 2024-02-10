@@ -32,12 +32,15 @@ bool CGameClient::OnMMOMessage(int MsgID, CUnpacker *pUnpacker)
 		int DataLen = pUnpacker->GetInt();
 		const unsigned char *pData = pUnpacker->GetRaw(DataLen);
 
-		io_write(m_CurrentFile, pData, DataLen);
+		if(m_CurrentFile)
+			io_write(m_CurrentFile, pData, DataLen);
 
 		if(IsLast)
 		{
 			m_FilesToDownload--;
-			io_close(m_CurrentFile);
+
+			if(m_CurrentFile)
+				io_close(m_CurrentFile);
 			m_CurrentFile = 0x0;
 
 			dbg_msg("lua", "files left: %d", m_FilesToDownload);

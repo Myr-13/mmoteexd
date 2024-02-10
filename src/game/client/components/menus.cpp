@@ -2003,49 +2003,7 @@ void CMenus::OnWindowResize()
 
 void CMenus::OnRender()
 {
-	UI()->StartCheck();
-
-	if(Client()->State() != IClient::STATE_ONLINE && Client()->State() != IClient::STATE_DEMOPLAYBACK)
-		SetActive(true);
-
-	if(Client()->State() == IClient::STATE_DEMOPLAYBACK)
-	{
-		UI()->MapScreen();
-		RenderDemoPlayer(*UI()->Screen());
-	}
-
-	if(Client()->State() == IClient::STATE_ONLINE && m_pClient->m_ServerMode == CGameClient::SERVERMODE_PUREMOD)
-	{
-		Client()->Disconnect();
-		SetActive(true);
-		PopupMessage(Localize("Disconnected"), Localize("The server is running a non-standard tuning on a pure game type."), Localize("Ok"));
-	}
-
-	if(!IsActive())
-	{
-		if(UI()->ConsumeHotkey(CUI::HOTKEY_ESCAPE))
-			SetActive(true);
-		UI()->FinishCheck();
-		UI()->ClearHotkeys();
-		return;
-	}
-
-	UpdateColors();
-
-	UI()->Update();
-
-	Render();
-	RenderTools()->RenderCursor(UI()->MousePos(), 24.0f);
-
-	// render debug information
-	if(g_Config.m_Debug)
-		UI()->DebugRender();
-
-	if(UI()->ConsumeHotkey(CUI::HOTKEY_ESCAPE))
-		SetActive(false);
-
-	UI()->FinishCheck();
-	UI()->ClearHotkeys();
+	// Unused huh
 }
 
 void CMenus::UpdateColors()
