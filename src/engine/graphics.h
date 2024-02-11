@@ -540,6 +540,9 @@ public:
 	virtual bool ShowMessageBox(unsigned Type, const char *pTitle, const char *pMsg) = 0;
 	virtual bool IsBackendInitialized() = 0;
 
+	virtual void QuadsDrawLua(struct lua_State *L) = 0;
+	virtual void LinesDrawLua(struct lua_State *L) = 0;
+
 protected:
 	inline CTextureHandle CreateTextureHandle(int Index)
 	{

@@ -157,7 +157,6 @@ public:
 
 	CTooltips m_Tooltips;
 
-private:
 	std::vector<class CComponent *> m_vpAll;
 	std::vector<class CComponent *> m_vpInput;
 	CNetObjHandler m_NetObjHandler;
@@ -181,6 +180,7 @@ private:
 	class IUpdater *m_pUpdater;
 #endif
 
+private:
 	CLayers m_Layers;
 	CCollision m_Collision;
 	CUI m_UI;

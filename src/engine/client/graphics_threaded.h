@@ -1280,6 +1280,9 @@ public:
 	const char *GetRendererString() override;
 
 	TGLBackendReadPresentedImageData &GetReadPresentedImageDataFuncUnsafe() override;
+
+	void QuadsDrawLua(struct lua_State *L) override;
+	void LinesDrawLua(struct lua_State *L) override;
 };
 
 typedef std::function<const char *(const char *, const char *)> TTranslateFunc;

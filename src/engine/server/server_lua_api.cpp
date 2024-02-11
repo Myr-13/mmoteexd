@@ -127,8 +127,6 @@ void register_network_api(lua_State *L)
 
 void register_server_api(lua_State *L)
 {
-	register_network_api(L);
-
 	lua_register(L, "AddCSFile", lua_add_cs_file);
 
 	luabridge::getGlobalNamespace(L)
@@ -359,6 +357,7 @@ void register_shared_api(lua_State *L)
 
 void CLuaFile::RegisterAPI(bool Server)
 {
+	register_network_api(m_pState);
 	register_server_api(m_pState);
 	register_shared_api(m_pState);
 }

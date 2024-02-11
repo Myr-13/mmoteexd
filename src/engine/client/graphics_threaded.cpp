@@ -30,6 +30,9 @@
 
 #include "graphics_threaded.h"
 
+#include <lua/lua.hpp>
+#include <engine/external/luabridge/LuaBridge.h>
+
 class CSemaphore;
 
 static CVideoMode g_aFakeModes[] = {
@@ -2952,4 +2955,76 @@ int CGraphics_Threaded::GetVideoModes(CVideoMode *pModes, int MaxModes, int Scre
 extern IEngineGraphics *CreateEngineGraphicsThreaded()
 {
 	return new CGraphics_Threaded();
+}
+
+void CGraphics_Threaded::QuadsDrawLua(struct lua_State *L)
+{
+	dbg_assert(m_Drawing == DRAWING_QUADS, "called Engine.Graphics:QuadsDraw without begin");
+
+	int n = lua_gettop(L);
+	if(n - 1 != 1)
+	{
+		luaL_error(L, "Engine.Graphics:QuadsDraw expects 1 argument, got %d", n);
+		return;
+	}
+
+	luabridge::LuaRef t = luabridge::LuaRef::fromStack(L, n);
+
+	if (!t.isTable())
+		return;
+
+	int l = t.length();
+	if (l == 0)
+		return;
+
+	std::vector<CQuadItem> its;
+	for(int i = 1; i <= l; i++)
+	{
+		luabridge::LuaRef it = t[i];
+		if (!it.isUserdata())
+		{
+			luaL_error(L, "elements in array for Engine.Graphics:QuadsDraw must be QuadItem (got %s @ %d)", luaL_typename(L, it.type()), i);
+			return;
+		}
+
+		its.push_back(it.cast<CQuadItem>());
+	}
+
+	QuadsDraw(its.data(), its.size());
+}
+
+void CGraphics_Threaded::LinesDrawLua(struct lua_State *L)
+{
+	dbg_assert(m_Drawing == DRAWING_LINES, "called Engine.Graphics:LinesDraw without begin");
+
+	int n = lua_gettop(L);
+	if(n - 1 != 1)
+	{
+		luaL_error(L, "Engine.Graphics:LinesDraw expects 1 argument, got %d", n);
+		return;
+	}
+
+	luabridge::LuaRef t = luabridge::LuaRef::fromStack(L, n);
+
+	if (!t.isTable())
+		return;
+
+	int l = t.length();
+	if (l == 0)
+		return;
+
+	std::vector<CLineItem> its;
+	for(int i = 1; i <= l; i++)
+	{
+		luabridge::LuaRef it = t[i];
+		if (!it.isUserdata())
+		{
+			luaL_error(L, "elements in array for Engine.Graphics:LinesDraw must be LineItem (got %s @ %d)", luaL_typename(L, it.type()), i);
+			return;
+		}
+
+		its.push_back(it.cast<CLineItem>());
+	}
+
+	LinesDraw(its.data(), its.size());
 }

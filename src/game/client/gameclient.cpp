@@ -35,41 +35,14 @@
 #include <game/mapitems.h>
 #include <game/version.h>
 
-#include "components/background.h"
-#include "components/binds.h"
-#include "components/broadcast.h"
-#include "components/camera.h"
-#include "components/chat.h"
-#include "components/console.h"
-#include "components/controls.h"
-#include "components/countryflags.h"
-#include "components/damageind.h"
-#include "components/debughud.h"
-#include "components/effects.h"
-#include "components/emoticon.h"
-#include "components/freezebars.h"
-#include "components/ghost.h"
-#include "components/hud.h"
-#include "components/infomessages.h"
-#include "components/items.h"
-#include "components/mapimages.h"
-#include "components/maplayers.h"
-#include "components/mapsounds.h"
-#include "components/menu_background.h"
-#include "components/menus.h"
-#include "components/motd.h"
-#include "components/nameplates.h"
-#include "components/particles.h"
-#include "components/players.h"
-#include "components/race_demo.h"
-#include "components/scoreboard.h"
-#include "components/skins.h"
-#include "components/sounds.h"
-#include "components/spectator.h"
-#include "components/statboard.h"
-#include "components/voting.h"
 #include "prediction/entities/character.h"
 #include "prediction/entities/projectile.h"
+
+#include <engine/shared/lua/lua_file.h>
+#include <engine/shared/lua/lua_state.h>
+
+#include <lua/lua.hpp>
+#include <engine/external/luabridge/LuaBridge.h>
 
 using namespace std::chrono_literals;
 
@@ -676,8 +649,15 @@ void CGameClient::OnRender()
 	}
 
 	// render all systems
+	int ID = 0;
 	for(auto &pComponent : m_vpAll)
+	{
 		pComponent->OnRender();
+		char aBuf[64];
+		str_format(aBuf, sizeof(aBuf), "RenderLevel%d", ID);
+		LUA_FIRE_EVENT(aBuf)
+		ID++;
+	}
 
 	// clear all events/input for this frame
 	Input()->Clear();
