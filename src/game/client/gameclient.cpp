@@ -348,6 +348,9 @@ void CGameClient::OnInit()
 		int Size = m_vpAll[i]->Sizeof();
 		pChecksum->m_aComponentsChecksum[i] = Size;
 	}
+
+	SLuaState::ms_pLuaManager = &m_LuaManager;
+	SLuaState::ms_pGameClient = this;
 }
 
 void CGameClient::OnUpdate()

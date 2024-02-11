@@ -36,6 +36,9 @@ void register_client_api(lua_State *L)
 		.addFunction("LinesEnd", &IGraphics::LinesEnd)
 		.addFunction("QuadsDraw", &IGraphics::QuadsDrawLua)
 		.addFunction("LinesDraw", &IGraphics::LinesDrawLua)
+
+		.addFunction("SetColor", [](IGraphics *pSelf, float r, float g, float b, float a) { pSelf->SetColor(r, g, b, a); })
+		.addFunction("TextureClear", &IGraphics::TextureClear)
 		.endClass()
 
 		.beginNamespace("Game")
