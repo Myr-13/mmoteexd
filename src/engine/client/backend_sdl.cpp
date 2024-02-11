@@ -1529,6 +1529,11 @@ void CGraphicsBackend_SDL_GL::SetWindowGrab(bool Grab)
 	SDL_SetWindowGrab(m_pWindow, Grab ? SDL_TRUE : SDL_FALSE);
 }
 
+void CGraphicsBackend_SDL_GL::SetMousePosition(int x, int y)
+{
+	SDL_WarpMouseInWindow(m_pWindow, x, y);
+}
+
 bool CGraphicsBackend_SDL_GL::ResizeWindow(int w, int h, int RefreshRate)
 {
 	// don't call resize events when the window is at fullscreen desktop

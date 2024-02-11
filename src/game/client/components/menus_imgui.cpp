@@ -9,13 +9,36 @@
 
 void CMenusImGui::AddBack(int Menu)
 {
-	if(ImGui::ButtonFull("Back", 30))
+	AddChangeMenu(Menu, "Back");
+}
+
+void CMenusImGui::AddChangeMenu(int Menu, const char *pText)
+{
+	if(ImGui::ButtonFull(pText, 30))
 		m_Menu = Menu;
+}
+
+void CMenusImGui::ToggleMenu()
+{
+	m_ShowMenu ^= 1;
+
+	if(m_ShowMenu)
+	{
+		Input()->MouseModeAbsolute();
+
+		int x = Graphics()->ScreenWidth() / 2;
+		int y = Graphics()->ScreenHeight() / 2;
+		Graphics()->SetMousePosition(x, y);
+	}
+	else
+		Input()->MouseModeRelative();
 }
 
 void CMenusImGui::OnInit()
 {
 	m_Menu = MENU_START;
+	m_OnlyShowMMOServers = true;
+	m_ShowMenu = true;
 
 	// Init style
 	// https://github.com/simongeilfus/Cinder-ImGui
@@ -72,104 +95,57 @@ void CMenusImGui::OnInit()
 	Style.Colors[ImGuiCol_PlotHistogram]         = ImVec4(0.86f, 0.93f, 0.89f, 0.63f);
 	Style.Colors[ImGuiCol_PlotHistogramHovered]  = ImVec4(0.92f, 0.18f, 0.29f, 1.00f);
 	Style.Colors[ImGuiCol_TextSelectedBg]        = ImVec4(0.92f, 0.18f, 0.29f, 0.43f);
-	Style.Colors[ImGuiCol_PopupBg]               = ImVec4(0.20f, 0.22f, 0.27f, 0.9f);
-}
-
-void CMenusImGui::MainMenu()
-{
-	ImGui::Begin("Main menu", 0x0, ImGuiWindowFlags_NoTitleBar);
-
-	switch(m_Menu)
-	{
-	case MENU_START:
-	{
-		if(ImGui::ButtonFull("Play", 30))
-			m_Menu = MENU_SERVERS;
-		if(ImGui::ButtonFull("Settings", 30))
-			m_Menu = MENU_SETTINGS;
-		if(ImGui::ButtonFull("Quit", 30))
-			Client()->Quit();
-	} break;
-
-	case MENU_SERVERS:
-	{
-		AddBack(MENU_START);
-
-		if(ImGui::ButtonFull("Refresh", 30))
-			ServerBrowser()->Refresh(ServerBrowser()->GetCurrentType());
-
-		if(ImGui::BeginTabBar("##server_tabs"))
-		{
-			if(ImGui::BeginTabItem("Internet"))
-			{
-				if(ServerBrowser()->GetCurrentType() != IServerBrowser::TYPE_INTERNET)
-					ServerBrowser()->Refresh(IServerBrowser::TYPE_INTERNET);
-
-				RenderServerList();
-
-				ImGui::EndTabItem();
-			}
-
-			if(ImGui::BeginTabItem("LAN"))
-			{
-				if(ServerBrowser()->GetCurrentType() != IServerBrowser::TYPE_LAN)
-					ServerBrowser()->Refresh(IServerBrowser::TYPE_LAN);
-
-				RenderServerList();
-
-				ImGui::EndTabItem();
-			}
-
-			ImGui::EndTabBar();
-		}
-	} break;
-
-	case MENU_SETTINGS:
-	{
-		AddBack(MENU_START);
-
-		if(ImGui::CollapsingHeader("Player"))
-		{
-			ImGui::InputText("Player name", g_Config.m_PlayerName, sizeof(g_Config.m_PlayerName));
-		}
-
-		if(ImGui::CollapsingHeader("Customization"))
-		{
-			if(ImGui::BeginTabBar("##customization"))
-			{
-				if(ImGui::BeginTabItem("Sizes"))
-				{
-					ImGui::EndTabItem();
-				}
-
-				if(ImGui::BeginTabItem("Colors"))
-				{
-					ImGuiStyle &Style = ImGui::GetStyle();
-
-					for(int i = 0; i < ImGuiCol_COUNT; i++)
-					{
-						ImGui::PushID(i);
-						ImGui::ColorEdit4("##color", (float *)&Style.Colors[i], ImGuiColorEditFlags_AlphaBar);
-						ImGui::SameLine();
-						ImGui::TextUnformatted(ImGui::GetStyleColorName(i));
-						ImGui::PopID();
-					}
-
-					ImGui::EndTabItem();
-				}
-
-				ImGui::EndTabBar();
-			}
-		}
-	} break;
-	}
-
-	ImGui::End();
+	Style.Colors[ImGuiCol_PopupBg]               = ImVec4(0.20f, 0.22f, 0.27f, 0.90f);
+	Style.Colors[ImGuiCol_Tab]                   = ImVec4(0.70f, 0.10f, 0.15f, 1.00f);
+	Style.Colors[ImGuiCol_TabActive]             = ImVec4(0.92f, 0.18f, 0.29f, 1.00f);
+	Style.Colors[ImGuiCol_TabHovered]            = ImVec4(0.92f, 0.18f, 0.29f, 1.00f);
 }
 
 void CMenusImGui::OnRender()
 {
 	MainMenu();
+}
+
+bool CMenusImGui::OnInput(const IInput::CEvent &Event)
+{
+	if(Event.m_Flags & IInput::FLAG_PRESS && Event.m_Key == KEY_ESCAPE)
+		ToggleMenu();
+
+	return false;
+}
+
+void CMenusImGui::OnStateChange(int NewState, int OldState)
+{
+	if(NewState != IClient::STATE_OFFLINE)
+	{
+		Input()->MouseModeRelative();
+		m_Menu = MENU_INGAME;
+		m_ShowMenu = false;
+	}
+	else
+	{
+		Input()->MouseModeAbsolute();
+		m_Menu = MENU_START;
+		m_ShowMenu = true;
+	}
+}
+
+void CMenusImGui::MainMenu()
+{
+	if(!m_ShowMenu)
+		return;
+
+	ImGui::Begin("Main menu", 0x0, ImGuiWindowFlags_NoTitleBar);
+
+	switch(m_Menu)
+	{
+	case MENU_START: RenderStartMenu(); break;
+	case MENU_INGAME: RenderInGameMenu(); break;
+	case MENU_SERVERS: RenderServers(); break;
+	case MENU_SETTINGS: RenderSettings(); break;
+	}
+
+	ImGui::End();
 }
 
 void CMenusImGui::RenderServerList()
@@ -193,7 +169,7 @@ void CMenusImGui::RenderServerList()
 		{
 			const CServerInfo *pItem = ServerBrowser()->SortedGet(i);
 
-			if(str_comp_nocase(pItem->m_aGameType, "MMOTee") != 0)
+			if(m_OnlyShowMMOServers && str_comp_nocase(pItem->m_aGameType, "MMOTee") != 0)
 				continue;
 
 			ImGui::TableNextRow();
@@ -215,17 +191,93 @@ void CMenusImGui::RenderServerList()
 	}
 }
 
+void CMenusImGui::RenderServers()
+{
+	AddBack(MENU_START);
+
+	if(ImGui::ButtonFull("Refresh", 30))
+		ServerBrowser()->Refresh(ServerBrowser()->GetCurrentType());
+	ImGui::Checkbox("Show only mmotee servers", &m_OnlyShowMMOServers);
+
+	if(ImGui::BeginTabBar("##server_tabs"))
+	{
+		if(ImGui::BeginTabItem("Internet"))
+		{
+			if(ServerBrowser()->GetCurrentType() != IServerBrowser::TYPE_INTERNET)
+				ServerBrowser()->Refresh(IServerBrowser::TYPE_INTERNET);
+
+			RenderServerList();
+
+			ImGui::EndTabItem();
+		}
+
+		if(ImGui::BeginTabItem("LAN"))
+		{
+			if(ServerBrowser()->GetCurrentType() != IServerBrowser::TYPE_LAN)
+				ServerBrowser()->Refresh(IServerBrowser::TYPE_LAN);
+
+			RenderServerList();
+
+			ImGui::EndTabItem();
+		}
+
+		ImGui::EndTabBar();
+	}
+}
+
 void CMenusImGui::RenderSettings()
 {
+	AddBack((Client()->State() == IClient::STATE_ONLINE) ? MENU_INGAME : MENU_START);
 
+	if(ImGui::CollapsingHeader("Player"))
+	{
+		ImGui::InputText("Player name", g_Config.m_PlayerName, sizeof(g_Config.m_PlayerName));
+	}
+
+	if(ImGui::CollapsingHeader("Customization"))
+	{
+		if(ImGui::BeginTabBar("##customization"))
+		{
+			if(ImGui::BeginTabItem("Sizes"))
+			{
+				ImGui::EndTabItem();
+			}
+
+			if(ImGui::BeginTabItem("Colors"))
+			{
+				ImGuiStyle &Style = ImGui::GetStyle();
+
+				for(int i = 0; i < ImGuiCol_COUNT; i++)
+				{
+					ImGui::PushID(i);
+					ImGui::ColorEdit4("##color", (float *)&Style.Colors[i], ImGuiColorEditFlags_AlphaBar);
+					ImGui::SameLine();
+					ImGui::TextUnformatted(ImGui::GetStyleColorName(i));
+					ImGui::PopID();
+				}
+
+				ImGui::EndTabItem();
+			}
+
+			ImGui::EndTabBar();
+		}
+	}
 }
 
 void CMenusImGui::RenderStartMenu()
 {
-
+	AddChangeMenu(MENU_SERVERS, "Play");
+	AddChangeMenu(MENU_SETTINGS, "Settings");
+	if(ImGui::ButtonFull("Quit", 30))
+		Client()->Quit();
 }
 
 void CMenusImGui::RenderInGameMenu()
 {
+	AddChangeMenu(MENU_SETTINGS, "Settings");
 
+	if(ImGui::ButtonFull("Disconnect", 30))
+		Client()->Disconnect();
+	if(ImGui::ButtonFull("Quit", 30))
+		Client()->Quit();
 }

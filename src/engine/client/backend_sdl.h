@@ -257,6 +257,7 @@ public:
 	int WindowActive() override;
 	int WindowOpen() override;
 	void SetWindowGrab(bool Grab) override;
+	void SetMousePosition(int x, int y) override;
 	bool ResizeWindow(int w, int h, int RefreshRate) override;
 	void GetViewportSize(int &w, int &h) override;
 	void NotifyWindow() override;

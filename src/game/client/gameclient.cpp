@@ -153,7 +153,7 @@ void CGameClient::OnConsoleInit()
 						  &m_GameConsole,
 						  &m_Chat, // chat has higher prio, due to that you can quit it by pressing esc
 						  &m_Motd, // for pressing esc to remove it
-						  &m_Menus,
+						  &m_ImGuiMenus,
 						  &m_Spectator,
 						  &m_Emoticon,
 						  &m_Controls,

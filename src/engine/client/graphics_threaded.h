@@ -716,6 +716,7 @@ public:
 	virtual int WindowActive() = 0;
 	virtual int WindowOpen() = 0;
 	virtual void SetWindowGrab(bool Grab) = 0;
+	virtual void SetMousePosition(int x, int y) = 0;
 	// returns true, if the video mode changed
 	virtual bool ResizeWindow(int w, int h, int RefreshRate) = 0;
 	virtual void GetViewportSize(int &w, int &h) = 0;
@@ -1239,6 +1240,7 @@ public:
 	int WindowOpen() override;
 
 	void SetWindowGrab(bool Grab) override;
+	void SetMousePosition(int x, int y) override;
 	void NotifyWindow() override;
 
 	int Init() override;

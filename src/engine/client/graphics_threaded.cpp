@@ -2775,6 +2775,11 @@ void CGraphics_Threaded::SetWindowGrab(bool Grab)
 	return m_pBackend->SetWindowGrab(Grab);
 }
 
+void CGraphics_Threaded::SetMousePosition(int x, int y)
+{
+	return m_pBackend->SetMousePosition(x, y);
+}
+
 void CGraphics_Threaded::NotifyWindow()
 {
 	return m_pBackend->NotifyWindow();
