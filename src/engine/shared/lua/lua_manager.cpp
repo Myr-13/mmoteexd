@@ -11,6 +11,7 @@ void CLuaManager::CloseAll()
 {
 	for(auto &LuaFile : m_vLuaFiles)
 		LuaFile.Close();
+	m_vLuaFiles.clear();
 }
 
 bool CLuaManager::Open(const char *pFolder, bool IsServer)
@@ -40,6 +41,5 @@ CLuaFile *CLuaManager::GetLuaFile(lua_State *L)
 void CLuaManager::ReloadAll()
 {
 	CloseAll();
-	m_vLuaFiles.clear();
 	Open("lua", true);
 }
