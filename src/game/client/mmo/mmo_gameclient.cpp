@@ -1,5 +1,7 @@
 #include <game/client/gameclient.h>
 
+#include <filesystem>
+
 #define LUA_CHUNK_SIZE (1024 - 128)
 
 bool CGameClient::OnMMOMessage(int MsgID, CUnpacker *pUnpacker)
@@ -20,6 +22,11 @@ bool CGameClient::OnMMOMessage(int MsgID, CUnpacker *pUnpacker)
 
 		char aBuf[256];
 		str_format(aBuf, sizeof(aBuf), "lua_cli/%s", pFileName);
+
+		std::string Dirs = aBuf;
+		size_t Pos = Dirs.rfind('/');
+		if(Pos != std::string::npos)
+			std::filesystem::create_directories(Dirs.erase(Pos));
 
 		m_CurrentFile = io_open(aBuf, IOFLAG_WRITE);
 

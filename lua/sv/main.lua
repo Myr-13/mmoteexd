@@ -13,9 +13,9 @@ do
 end
 
 -- Base library
+include("sh/base/hook.lua")
 include("sv/base/console.lua")
 include("sv/base/database.lua")
-include("sv/base/hooks.lua")
 include("sv/base/sql_queries.lua")
 include("sv/base/utils.lua")
 include("sv/base/world.lua")

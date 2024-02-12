@@ -16,6 +16,20 @@
 #include <game/server/entity.h>
 #include <game/mapitems.h>
 
+int lua_add_cs_file(lua_State *L)
+{
+	if(lua_gettop(L) < 1)
+		return luaL_argerror(L, 1, "expected 1 argument: string");
+	if(!lua_isstring(L, -1))
+		return luaL_argerror(L, 1, "expected string");
+
+	const char *pFile = luaL_checkstring(L, -1);
+
+	SLuaState::ms_pGameServer->m_vClientFiles.emplace_back(pFile);
+
+	return 0;
+}
+
 void register_network_api(lua_State *L)
 {
 	luabridge::getGlobalNamespace(L)

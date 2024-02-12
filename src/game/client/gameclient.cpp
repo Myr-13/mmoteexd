@@ -77,48 +77,48 @@ void CGameClient::OnConsoleInit()
 	m_NamePlates.SetPlayers(&m_Players);
 
 	// make a list of all the systems, make sure to add them in the correct render order
-	m_vpAll.insert(m_vpAll.end(), {&m_Skins,
-					      &m_CountryFlags,
-					      &m_MapImages,
-					      &m_Effects, // doesn't render anything, just updates effects
-					      &m_Binds,
-					      &m_Binds.m_SpecialBinds,
-					      &m_Controls,
-					      &m_Camera,
-					      &m_Sounds,
-					      &m_Voting,
-					      &m_Particles, // doesn't render anything, just updates all the particles
-					      &m_RaceDemo,
-					      &m_MapSounds,
-					      &m_Background, // render instead of m_MapLayersBackground when g_Config.m_ClOverlayEntities == 100
-					      &m_MapLayersBackground, // first to render
-					      &m_Particles.m_RenderTrail,
-					      &m_Items,
-					      &m_Ghost,
-					      &m_Players,
-					      &m_MapLayersForeground,
-					      &m_Particles.m_RenderExplosions,
-					      &m_NamePlates,
-					      &m_Particles.m_RenderExtra,
-					      &m_Particles.m_RenderGeneral,
-					      &m_FreezeBars,
-					      &m_DamageInd,
-					      &m_Hud,
-					      &m_Spectator,
-					      &m_Emoticon,
-					      &m_InfoMessages,
-					      &m_Chat,
-					      &m_Broadcast,
-					      &m_DebugHud,
-					      &m_Scoreboard,
-					      &m_Statboard,
-					      &m_Motd,
-					      &m_Menus,
-					      &m_Tooltips,
-					      &CMenus::m_Binder,
-					      &m_GameConsole,
-					      &m_MenuBackground,
-				              &m_ImGuiMenus});
+	m_vpAll.insert(m_vpAll.end(), {&m_Skins, // 0
+					      &m_CountryFlags, // 1
+					      &m_MapImages, // 2
+					      &m_Effects, // 3 doesn't render anything, just updates effects
+					      &m_Binds, // 4
+					      &m_Binds.m_SpecialBinds, // 5
+					      &m_Controls, // 6
+					      &m_Camera, // 7
+					      &m_Sounds, // 8
+					      &m_Voting, // 9
+					      &m_Particles, // 10 doesn't render anything, just updates all the particles
+					      &m_RaceDemo, // 11
+					      &m_MapSounds, // 12
+					      &m_Background, // 13 render instead of m_MapLayersBackground when g_Config.m_ClOverlayEntities == 100
+					      &m_MapLayersBackground, // 14 first to render
+					      &m_Particles.m_RenderTrail, // 15
+					      &m_Items, // 16
+					      &m_Ghost, // 17
+					      &m_Players, // 18
+					      &m_MapLayersForeground, // 19
+					      &m_Particles.m_RenderExplosions, // 20
+					      &m_NamePlates, // 21
+					      &m_Particles.m_RenderExtra, // 22
+					      &m_Particles.m_RenderGeneral, // 23
+					      &m_FreezeBars, // 24
+					      &m_DamageInd, // 25
+					      &m_Hud, // 26
+					      &m_Spectator, // 27
+					      &m_Emoticon, // 28
+					      &m_InfoMessages, // 29
+					      &m_Chat, // 30
+					      &m_Broadcast, // 31
+					      &m_DebugHud, // 32
+					      &m_Scoreboard, // 33
+					      &m_Statboard, // 34
+					      &m_Motd, // 35
+					      &m_Menus, // 36
+					      &m_Tooltips, // 37
+					      &CMenus::m_Binder, // 38
+					      &m_GameConsole, // 39
+					      &m_MenuBackground, // 40
+				              &m_ImGuiMenus /* 41 */});
 
 	// build the input stack
 	m_vpInput.insert(m_vpInput.end(), {&CMenus::m_Binder, // this will take over all input when we want to bind a key

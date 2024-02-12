@@ -39,6 +39,7 @@ void register_client_api(lua_State *L)
 
 		.addFunction("SetColor", [](IGraphics *pSelf, float r, float g, float b, float a) { pSelf->SetColor(r, g, b, a); })
 		.addFunction("TextureClear", &IGraphics::TextureClear)
+		.addFunction("MapScreen", &IGraphics::MapScreen)
 		.endClass()
 
 		.beginNamespace("Game")

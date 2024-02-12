@@ -6,10 +6,7 @@
 
 #include <base/vmath.h>
 
-int lua_add_cs_file(lua_State *L);
-
 int lua_include(lua_State *L);
-
 int lua_hash(lua_State *L);
 
 #endif // ENGINE_SHARED_LUA_LUA_BINDING_H

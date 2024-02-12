@@ -3,29 +3,15 @@
 #include "lua_state.h"
 
 #include <lua/lua.hpp>
-
-#include <game/server/gamecontext.h>
-
-int lua_add_cs_file(lua_State *L)
-{
-	if(lua_gettop(L) < 1)
-		return luaL_argerror(L, 1, "expected 1 argument: string");
-	if(!lua_isstring(L, -1))
-		return luaL_argerror(L, 1, "expected string");
-
-	const char *pFile = luaL_checkstring(L, -1);
-
-	SLuaState::ms_pGameServer->m_vClientFiles.emplace_back(pFile);
-
-	return 0;
-}
+#include <engine/shared/lua/lua_manager.h>
+#include <base/system.h>
 
 int lua_include(lua_State *L)
 {
 	if(lua_gettop(L) < 1)
 		return luaL_argerror(L, 1, "expected 1 argument");
 
-	CLuaFile *pLF = SLuaState::ms_pGameServer->m_LuaManager.GetLuaFile(L);
+	CLuaFile *pLF = SLuaState::ms_pLuaManager->GetLuaFile(L);
 	if(!pLF)
 		return luaL_error(L, "this should be never reached...");
 

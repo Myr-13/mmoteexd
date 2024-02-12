@@ -12,20 +12,22 @@ EntityManager.Register("basic_slowdown", {
 	RemoveTick = 0,
 	Segments = 10,
 	Size = 1,
+	WorldID = 0,
 
-	OnInit = function(self, Pos, Dir, OwnerID, DamageType, Damage)
+	OnInit = function(self, Pos, WorldID, Dir, OwnerID)
 		self.Pos = copy_vector(Pos)
 		self.Dir = copy_vector(Dir)
 		self.SnapID = Game.Server:SnapNewID()
 		self.OwnerID = OwnerID
-		self.DamageType = DamageType
-		self.Damage = Damage
 		self.StartedTick = Game.Server.Tick
 		self.RemoveTick = Game.Server.Tick + 350
+		self.WorldID = WorldID
+
 		self.SnapIDs = {}
 		for i = 1, self.Segments do
 			self.SnapIDs[i] = Game.Server:SnapNewID()
 		end
+
 		self.SnapIDs2 = {}
 		for i = 1, self.Segments * 2 do
 			self.SnapIDs2[i] = Game.Server:SnapNewID()
@@ -39,7 +41,7 @@ EntityManager.Register("basic_slowdown", {
 		if Game.Server.Tick > self.RemoveTick then
 			self.Size = (self.RemoveTick - Game.Server.Tick + 128)
 		end
-		if self.Size <= 0 then
+		if self.Size == 0 then
 			self.MarkedToRemove = true 
 			return
 		end
@@ -62,6 +64,10 @@ EntityManager.Register("basic_slowdown", {
 	end,
 
 	OnSnap = function(self, ClientID)
+		if self:NetworkClipped(ClientID) then
+			return
+		end
+
 		local Step = (math.pi * 2) / self.Segments
         for i = 1, self.Segments do
             local a = Step * i
