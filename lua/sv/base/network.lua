@@ -1,3 +1,6 @@
+local json = require("json")
+Network = {}
+
 NETMSGTYPE_EX = 0
 NETMSGTYPE_SV_MOTD = 1
 NETMSGTYPE_SV_BROADCAST = 2
@@ -30,6 +33,7 @@ NETMSGTYPE_SV_RECORDLEGACY = 28
 NETMSGTYPE_UNUSED2 = 29
 NETMSGTYPE_SV_TEAMSSTATELEGACY = 30
 NETMSGTYPE_CL_SHOWOTHERSLEGACY = 31
+NETMSG_LUA_CUSTOM = 65555
 
 MSGFLAG_VITAL = 1
 MSGFLAG_FLUSH = 2
@@ -38,3 +42,36 @@ MSGFLAG_RECORD = 8
 MSGFLAG_NOSEND = 16
 
 MAX_CLIENTS = 24
+
+
+-- Recomended format of UUID: msg@system
+-- Msg - unique name of packet
+-- System - system that uses this packet
+Network.SendMsg = function(CID, UUID, Data)
+	Msg = CMsgPacker(NETMSG_LUA_CUSTOM, false)
+	Msg:AddString(UUID)
+	Msg:AddString(json.encode(Data))
+	Game.Server:SendMsg(Msg, MSGFLAG_VITAL, CID)
+end
+
+
+Network.OnMessage = function(Msg, CID)
+	local UUID = Msg:GetString()
+	local Data = json.decode(Msg:GetString())
+
+	Hook.Call("__NetworkMessage_" .. UUID, Data, CID)
+end
+
+
+Network.RegisterCallback = function(UUID, Callback)
+	Hook.Add("__NetworkMessage_" .. UUID, UUID, Callback)
+end
+
+
+Hook.Add("OnMessage", "NetworkOnMessage", function(MsgID, Unpacker, CID)
+	if MsgID ~= NETMSG_LUA_CUSTOM then
+		return
+	end
+
+	Network.OnMessage(Unpacker, CID)
+end)

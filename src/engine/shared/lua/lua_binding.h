@@ -8,5 +8,6 @@
 
 int lua_include(lua_State *L);
 int lua_hash(lua_State *L);
+int lua_list_dir(lua_State *L);
 
 #endif // ENGINE_SHARED_LUA_LUA_BINDING_H

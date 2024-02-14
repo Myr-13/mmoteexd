@@ -56,21 +56,12 @@ local function ChatRegister(Result)
 end
 
 
-local function ChatLogin(Result)
-	local CID = Result.ClientID
-	local Login = Result:GetString(0)
-	local Password = Result:GetString(1)
-
-	if Player.GetData(CID, "LoggedIn") then
-		Server.SendChat(CID, "You already logged in")
-		return
-	end
-
+local function CommonLogin(CID, Name, Password)
 	local PasswordHash = hash(Password)
 
 	DB.Execute(function(Stmt)
 		-- Check for account with this name and password
-		if DB.Prepare(Stmt, string.format(DB.SQL.CheckForAccountWithPassword, Login, PasswordHash)) then
+		if DB.Prepare(Stmt, string.format(DB.SQL.CheckForAccountWithPassword, Name, PasswordHash)) then
 			return
 		end
 		Stmt:Step()
@@ -82,7 +73,7 @@ local function ChatLogin(Result)
 		end
 
 		-- Load basic account info
-		if DB.Prepare(Stmt, string.format(DB.SQL.GetAccount, Login)) then
+		if DB.Prepare(Stmt, string.format(DB.SQL.GetAccount, Name)) then
 			return
 		end
 		Stmt:Step()
@@ -97,7 +88,7 @@ local function ChatLogin(Result)
 
 		-- Set account basic data
 		Player.SetData(CID, "AccData", {
-			Name = Login,
+			Name = Name,
 			ID = AccID,
 			Level = Stmt:GetInt(3),
 			Exp = Stmt:GetInt(4),
@@ -184,7 +175,21 @@ local function ChatLogin(Result)
 		Game.Players(CID):SetTeam(0)
 
 		Hook.Call("OnPlayerLoggedIn", CID)
-	end)
+	end)	
+end
+
+
+local function ChatLogin(Result)
+	local CID = Result.ClientID
+	local Name = Result:GetString(0)
+	local Password = Result:GetString(1)
+
+	if Player.GetData(CID, "LoggedIn") then
+		Server.SendChat(CID, "You already logged in")
+		return
+	end
+
+	CommonLogin(CID, Name, Password)
 end
 
 

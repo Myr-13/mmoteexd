@@ -67,6 +67,7 @@ void CGameContext::SendLuaFileChunk(int ClientID, int Chunk)
 	}
 
 	char aBuf[LUA_CHUNK_SIZE];
+	io_skip(File, Begin);
 	size_t DataLen = io_read(File, aBuf, sizeof(aBuf));
 
 	io_close(File);

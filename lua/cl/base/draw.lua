@@ -20,10 +20,26 @@ end
 
 
 Draw.Rect = function(x, y, w, h)
+	Draw.RectCentred(x + w / 2, y + h / 2, w, h)
+end
+
+
+Draw.RectCentred = function(x, y, w, h)
 	Game.Graphics:QuadsBegin()
-	Game.Graphics:SetColor(Draw._RenderColor.r, Draw._RenderColor.b, Draw._RenderColor.b, Draw._RenderColor.a)
+	Game.Graphics:SetColor(Draw._RenderColor.r, Draw._RenderColor.g, Draw._RenderColor.b, Draw._RenderColor.a)
 	Game.Graphics:QuadsDraw({
 		QuadItem(x, y, w, h)
 	})
 	Game.Graphics:QuadsEnd()
+end
+
+
+Draw.Text = function(x, y, Size, Format, ...)
+	Game.TextRender:Text(x, y, Size, string.format(Format, ...), -1)
+end
+
+
+Draw.TextCentred = function(x, y, Size, Format, ...)
+	local FinalText = string.format(Format, ...)
+	Draw.Text(x - Game.TextRender:TextWidth(Size, FinalText) / 2, y, Size, FinalText)
 end

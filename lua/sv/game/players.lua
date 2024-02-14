@@ -48,6 +48,10 @@ local function HandleHUD(CID, Ply, WorldID)
 		return
 	end
 
+	if Player.GetData(CID, "IsMMO") then
+		return
+	end
+
 	if not Player.GetData(CID, "LoggedIn") then
 		return
 	end
@@ -140,6 +144,37 @@ local function HandleRegen(CID, Ply, WorldID)
 end
 
 
+local function HandleMessageSending(CID, Ply, WorldID)
+	-- TODO: Move this shit to TicksPassed
+	if Game.Server.Tick % 10 ~= 0 then
+		return
+	end
+
+	if not Player.GetData(CID, "LoggedIn") then
+		return
+	end
+
+	local Chr = Ply.Character
+	if not Chr then
+		return
+	end
+
+	local AccData = Player.GetData(CID, "AccData")
+
+	Network.SendMsg(CID, "stats@acc", {
+		Name = AccData.Name,
+		Level = AccData.Level,
+		Exp = AccData.Exp,
+		NeedExp = GetExpForLevelUp(AccData.Level),
+		Money = AccData.Money,
+		Health = Chr.Health,
+		MaxHealth = Chr.MaxHealth,
+		Mana = Player.GetData(CID, "Mana"),
+		MaxMana = Player.GetData(CID, "MaxMana")
+	})
+end
+
+
 local function PlayersTick()
 	for i = 0, MAX_CLIENTS - 1 do
 		local Ply = Game.Players(i)
@@ -150,6 +185,7 @@ local function PlayersTick()
 			HandleTiles(i, Ply, WorldID)
 			HandleHUD(i, Ply, WorldID)
 			HandleRegen(i, Ply, WorldID)
+			HandleMessageSending(i, Ply, WorldID)
 		end
 	end
 end
@@ -235,3 +271,7 @@ Hook.Add("OnTick", "PlayersTick", PlayersTick)
 Hook.Add("OnCharacterFireWeapon", "PlayersCustomWeapons", PlayerWeapons)
 Hook.Add("OnCharacterInput", "ChangeWeapons", HandleWeaponSwitch)
 Hook.Add("OnPlayerLoggedIn", "InitPlayer", InitPlayerVars)
+
+Network.RegisterCallback("client@main", function(Data, CID)
+	Player.SetData(CID, "IsMMO", true)
+end)

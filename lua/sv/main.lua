@@ -16,6 +16,7 @@ end
 include("sh/base/hook.lua")
 include("sv/base/console.lua")
 include("sv/base/database.lua")
+include("sv/base/network.lua")
 include("sv/base/sql_queries.lua")
 include("sv/base/utils.lua")
 include("sv/base/world.lua")
@@ -23,7 +24,6 @@ include("sv/base/world.lua")
 -- Gameplay stuff
 include("sv/game/commands/admin.lua")
 include("sv/game/commands/general.lua")
-include("sv/game/enums/network.lua")
 include("sv/game/enums/sounds.lua")
 include("sv/game/enums/tiles.lua")
 

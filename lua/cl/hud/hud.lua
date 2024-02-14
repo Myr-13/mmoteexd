@@ -1,5 +1,0 @@
-Hook.Add("RenderLevel26", "MMOHud", function()
-	Draw.ClearTexture()
-	Draw.SetColor(255, 255, 255)
-	Draw.Rect(10, 10, 100, 100)
-end)

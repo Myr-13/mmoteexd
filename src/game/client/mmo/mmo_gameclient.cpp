@@ -1,6 +1,9 @@
 #include <game/client/gameclient.h>
 
 #include <filesystem>
+#include <lua/lua.hpp>
+#include <engine/external/luabridge/LuaBridge.h>
+#include <engine/shared/lua/lua_state.h>
 
 #define LUA_CHUNK_SIZE (1024 - 128)
 
@@ -65,6 +68,8 @@ bool CGameClient::OnMMOMessage(int MsgID, CUnpacker *pUnpacker)
 		}
 	} return true;
 	}
+
+	LUA_FIRE_EVENT("OnMessage", MsgID, pUnpacker)
 
 	return false;
 }

@@ -53,9 +53,6 @@ class CHud : public CComponent
 	void RenderTeambalanceWarning();
 	void RenderVoting();
 
-	void PrepareAmmoHealthAndArmorQuads();
-	void RenderAmmoHealthAndArmor(const CNetObj_Character *pCharacter);
-
 	void PreparePlayerStateQuads();
 	void RenderPlayerState(const int ClientID);
 	void RenderDummyActions();
@@ -63,10 +60,7 @@ class CHud : public CComponent
 
 	void RenderGameTimer();
 	void RenderPauseNotification();
-	void RenderSuddenDeath();
-	void RenderScoreHud();
 	void RenderSpectatorHud();
-	void RenderWarmupTimer();
 	void RenderLocalTime(float x);
 
 	static constexpr float MOVEMENT_INFORMATION_LINE_HEIGHT = 8.0f;

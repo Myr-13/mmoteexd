@@ -161,7 +161,7 @@ void register_server_api(lua_State *L)
 
 		.beginClass<CUnpacker>("CUnpacker")
 		.addFunction("GetInt", &CUnpacker::GetInt)
-		.addFunction("GetString", &CUnpacker::GetString)
+		.addFunction("GetString", [](CUnpacker *pSelf) { return pSelf->GetString(); })
 		.endClass()
 
 		.beginClass<CPacker>("CPacker")
@@ -366,6 +366,7 @@ void register_shared_api(lua_State *L)
 
 	lua_register(L, "include", lua_include);
 	lua_register(L, "hash", lua_hash);
+	lua_register(L, "list_dir", lua_list_dir);
 	luaL_dostring(L, "function print(...) for _, v in pairs({...}) do sys.dbg_msg(\"lua_print\", tostring(v)) end end");
 }
 

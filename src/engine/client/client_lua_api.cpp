@@ -29,7 +29,24 @@ void register_client_api(lua_State *L)
 		.addProperty("y2", &IGraphics::CLineItem::m_Y1)
 		.endClass()
 
+		.beginClass<CUnpacker>("CUnpacker")
+		.addFunction("GetInt", &CUnpacker::GetInt)
+		.addFunction("GetString", [](CUnpacker *pSelf) { return pSelf->GetString(); })
+		.endClass()
+
+		.beginClass<CPacker>("CPacker")
+		.addFunction("Reset", &CPacker::Reset)
+		.addFunction("AddInt", &CPacker::AddInt)
+		.addFunction("AddString", [](CPacker *pSelf, const char *pStr) { pSelf->AddString(pStr); })
+		.endClass()
+
+		.deriveClass<CMsgPacker, CPacker>("CMsgPacker")
+		.addConstructor<void (*)(int, bool)>()
+		.endClass()
+
 		.beginClass<IGraphics>("IGraphics")
+		.addProperty("ScreenAspect", &IGraphics::ScreenAspect)
+
 		.addFunction("QuadsBegin", &IGraphics::QuadsBegin)
 		.addFunction("QuadsEnd", &IGraphics::QuadsEnd)
 		.addFunction("LinesBegin", &IGraphics::LinesBegin)
@@ -42,9 +59,20 @@ void register_client_api(lua_State *L)
 		.addFunction("MapScreen", &IGraphics::MapScreen)
 		.endClass()
 
+		.beginClass<ITextRender>("ITextRender")
+		.addFunction("Text", &ITextRender::Text)
+		.addFunction("TextWidth", [](ITextRender *pSelf, int Size, const char *pText) { return pSelf->TextWidth(Size, pText); })
+		.endClass()
+
+		.beginClass<IClient>("IClient")
+		.addFunction("SendMsg", [](IClient *pSelf, CMsgPacker *pMsg, int Flags) { pSelf->SendMsg(0, pMsg, Flags); })
+		.endClass()
+
 		.beginNamespace("Game")
+		.addProperty("Client", &SLuaState::ms_pGameClient->m_pClient, false)
 		.addProperty("GameClient", &SLuaState::ms_pGameClient, false)
 		.addProperty("Graphics", &SLuaState::ms_pGameClient->m_pGraphics, false)
+		.addProperty("TextRender", &SLuaState::ms_pGameClient->m_pTextRender, false)
 		.endNamespace();
 }
 
@@ -90,6 +118,7 @@ void register_shared_api(lua_State *L)
 
 	lua_register(L, "include", lua_include);
 	lua_register(L, "hash", lua_hash);
+	lua_register(L, "list_dir", lua_list_dir);
 	luaL_dostring(L, "function print(...) for _, v in pairs({...}) do sys.dbg_msg(\"lua_print\", tostring(v)) end end");
 }
 
