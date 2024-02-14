@@ -952,7 +952,10 @@ void CGameClient::OnStateChange(int NewState, int OldState)
 		pComponent->OnStateChange(NewState, OldState);
 
 	if(NewState == IClient::STATE_OFFLINE)
+	{
+		LUA_FIRE_EVENT("OnShutdown")
 		m_LuaManager.CloseAll();
+	}
 }
 
 void CGameClient::OnShutdown()

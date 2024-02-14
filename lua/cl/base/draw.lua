@@ -1,9 +1,35 @@
 Draw = {}
 Draw._RenderColor = {r = 1.0, g = 1.0, b = 1.0, a = 1.0}
+Draw._Textures = {}
 
 
 Draw.ClearTexture = function()
 	Game.Graphics:TextureClear()
+end
+
+
+Draw.SetTexture = function(Name)
+	local Texture = Draw._Textures[Name]
+	if not Texture then
+		return
+	end
+
+	Game.Graphics:TextureSet(Texture)
+end
+
+
+Draw.LoadTexture = function(Name, Path)
+	Draw._Textures[Name] = Game.Graphics:LoadTexture(Path)
+end
+
+
+Draw.UnloadTexture = function(Name)
+	local Texture = Draw._Textures[Name]
+	if not Texture then
+		return
+	end
+
+	Game.Graphics:UnloadTexture(Texture)
 end
 
 
@@ -39,7 +65,20 @@ Draw.Text = function(x, y, Size, Format, ...)
 end
 
 
-Draw.TextCentred = function(x, y, Size, Format, ...)
+Draw.TextCenter = function(x, y, Size, Format, ...)
 	local FinalText = string.format(Format, ...)
 	Draw.Text(x - Game.TextRender:TextWidth(Size, FinalText) / 2, y, Size, FinalText)
 end
+
+
+Draw.TextLeft = function(x, y, Size, Format, ...)
+	local FinalText = string.format(Format, ...)
+	Draw.Text(x - Game.TextRender:TextWidth(Size, FinalText), y, Size, FinalText)
+end
+
+
+Hook.Add("OnShutdown", "UnloadAllTextures", function()
+	for k, _ in pairs(Draw._Textures) do
+		Draw.UnloadTexture(k)
+	end
+end)

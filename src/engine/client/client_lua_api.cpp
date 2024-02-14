@@ -44,6 +44,9 @@ void register_client_api(lua_State *L)
 		.addConstructor<void (*)(int, bool)>()
 		.endClass()
 
+		.beginClass<IGraphics::CTextureHandle>("CTextureHandle")
+		.endClass()
+
 		.beginClass<IGraphics>("IGraphics")
 		.addProperty("ScreenAspect", &IGraphics::ScreenAspect)
 
@@ -56,7 +59,10 @@ void register_client_api(lua_State *L)
 
 		.addFunction("SetColor", [](IGraphics *pSelf, float r, float g, float b, float a) { pSelf->SetColor(r, g, b, a); })
 		.addFunction("TextureClear", &IGraphics::TextureClear)
+		.addFunction("TextureSet", &IGraphics::TextureSet)
 		.addFunction("MapScreen", &IGraphics::MapScreen)
+		.addFunction("LoadTexture", [](IGraphics *pSelf, const char *pPath) { return pSelf->LoadTexture(pPath, IStorage::TYPE_ALL); })
+		.addFunction("UnloadTexture", &IGraphics::UnloadTexture)
 		.endClass()
 
 		.beginClass<ITextRender>("ITextRender")

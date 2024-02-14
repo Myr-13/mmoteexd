@@ -21,6 +21,7 @@ include("cl/base/network.lua")
 
 include("cl/game/hud/hud.lua")
 include("cl/game/account.lua")
+include("cl/game/resources.lua")
 
 
 -- Do other stuff
@@ -41,6 +42,9 @@ for i = 0, 41 do
 end
 
 RegisterHook("OnMessage")
+RegisterHook("OnShutdown")
+
+Hook.Call("OnInit")
 
 -- Notify about mmo client
 Network.SendMsg("client@main", {IsMMO = true})

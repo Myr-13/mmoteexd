@@ -15,4 +15,5 @@ end
 AddCSDir("lua/cl", "cl")
 AddCSDir("lua/sh", "sh")
 
+AddCSFile("cl_init.lua")
 include("sv/main.lua")

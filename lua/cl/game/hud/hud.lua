@@ -7,6 +7,7 @@ end
 
 
 local function SideBar()
+	local FontSize = 6
 	local x = Convert(270)
 	local y = 300 / 2 - 50 / 2
 
@@ -15,20 +16,24 @@ local function SideBar()
 	Draw.SetColor(0, 0, 0, 100)
 	Draw.Rect(x, y, Convert(30), 50)
 
-	Draw.Text(x + 2, y + 2, 4, "Account: %s", Account.Name)
-	Draw.Text(x + 2, y + 6, 4, "Level: %d", Account.Level)
+	x = x + 2
+	y = y + 2
+
+	Draw.Text(x, y, FontSize, "Account: %s", Account.Name)
+	y = y + FontSize
+	Draw.Text(x, y, FontSize, "Level: %d", Account.Level)
+	y = y + FontSize
 
 	local Exp = Account.Exp
 	local NeedExp = Account.NeedExp
 	local Width = Convert(Exp / NeedExp * 25)
 
-	-- Exp progress bar
-	Draw.ClearTexture()
-	Draw.SetColor(50, 255, 50)
-	Draw.Rect(x + 2, y + 12, Width, 5)
+	-- TODO: Add cool progress bar xd
 
-	Draw.TextCentred(x + 2 + Width, y + 18, 3, "%d/%d", Exp, NeedExp)
-	Draw.Text(x + 2, y + 23, 4, "Money: %d", Account.Money)
+	Draw.Text(x, y, FontSize, "Exp: %d/%d", Exp, NeedExp)
+	y = y + FontSize
+	Draw.Text(x, y, FontSize, "Money: %d", Account.Money)
+	y = y + FontSize
 end
 
 
@@ -48,15 +53,20 @@ local function MainBar()
 	Draw.SetColor(Math.Lerp(50, 255, (1 - HPRatio)), 255 * HPRatio, 50 * HPRatio)
 	Draw.Rect(HPX, 250, HPWidth, 10)
 
-	Draw.TextCentred(HPX + HPWidth, 243, 5, "%d/%d", Account.Health, Account.MaxHealth)
+	Draw.SetTexture("hud_heart")
+	Draw.SetColor(255, 255, 255)
+	Draw.Rect(HPX + 2, 252, 6, 6)
+
+	Draw.Text(HPX, 243, 5, "%d/%d", Account.Health, Account.MaxHealth)
 
 	-- Mana bar
+	Draw.ClearTexture()
 	Draw.SetColor(0, 0, 0, 100)
-	Draw.Rect(Convert(200) - MaxWidth - Offset * 2, 250 - Offset, MaxWidth + Offset * 2, 10 + Offset * 2)
+	Draw.Rect(Convert(200) - MaxWidth - Offset, 250 - Offset, MaxWidth + Offset * 2, 10 + Offset * 2)
 	Draw.SetColor(50, 50, 200)
-	Draw.Rect(MPX - Offset, 250, MPWidth, 10)
+	Draw.Rect(MPX, 250, MPWidth, 10)
 
-	Draw.TextCentred(MPX - Offset, 243, 5, "%d/%d", Account.Mana, Account.MaxMana)
+	Draw.TextLeft(Convert(200), 243, 5, "%d/%d", Account.Mana, Account.MaxMana)
 end
 
 
