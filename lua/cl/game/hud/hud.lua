@@ -8,7 +8,7 @@ end
 
 
 local function SideBar()
-	local FontSize = 6
+	local FontSize = 8
 	local x = Convert(270)
 	local y = 300 / 2 - 50 / 2
 
@@ -20,10 +20,20 @@ local function SideBar()
 	x = x + 2
 	y = y + 2
 
-	Draw.Text(x, y, FontSize, "► %s", Account.Name)
-	y = y + FontSize
-	Draw.Text(x, y, FontSize, "Money: %s", Utils.FormatNumber(Account.Money))
-	y = y + FontSize
+	-- Account name
+	Draw.SetTexture("hud_user")
+	Draw.SetColor(255, 255, 255)
+	Draw.Rect(x, y + 0.5, FontSize, FontSize)
+
+	Draw.Text(x + FontSize + 1, y, FontSize, "%s", Account.Name)
+	y = y + FontSize + 2
+
+	-- Money
+	Draw.SetTexture("hud_coins")
+	Draw.SetColor(255, 255, 255)
+	Draw.Rect(x, y + 0.5, FontSize, FontSize)
+
+	Draw.Text(x + FontSize + 1, y, FontSize, "%s$", Utils.FormatNumber(Account.Money))
 end
 
 
@@ -96,13 +106,20 @@ end
 
 
 local function CollectedItems()
-	local PosX = Convert(250)
+	local PosX = Convert(230)
 	local OffsetY = 0
-	local FontSize = 6
+	local FontSize = 8
 
 	for k, v in pairs(_CollectedItems) do
 		OffsetY = OffsetY + FontSize
-		Draw.Text(PosX, 300 - OffsetY, FontSize, v.Text)
+		local y = 300 - OffsetY
+		Draw.Text(PosX, y, FontSize, v.Text)
+
+		local ImgX = PosX + Draw.TextWidth(FontSize, v.Text)
+
+		Draw.SetTexture("item_" .. v.StrID)
+		Draw.SetColor(255, 255, 255)
+		Draw.Rect(ImgX, y, FontSize, FontSize)
 
 		if Game.Client.LocalTime > v.EndTime then
 			table.remove(_CollectedItems, k)
@@ -129,6 +146,7 @@ end)
 Network.RegisterCallback("collect_item@hud", function(Data)
 	table.insert(_CollectedItems, {
 		Text = string.format("+ %s x%d", Data.Name, Data.Count),
-		EndTime = Game.Client.LocalTime + 3
+		EndTime = Game.Client.LocalTime + 3,
+		StrID = Data.StrID
 	})
 end)

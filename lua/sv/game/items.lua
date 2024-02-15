@@ -18,8 +18,9 @@ ATTACK_TYPE_SPAWN_PROJECTILE = 1
 local _Items = {}
 
 
-function AddItem(ID, Type, Name, Desc, Data)
+function AddItem(ID, StrID, Type, Name, Desc, Data)
 	local Item = {
+		StrID = StrID,
 		Type = Type,
 		Name = Name,
 		Desc = Desc,
@@ -59,6 +60,11 @@ end
 
 function GetItemData(ID)
 	return _Items[ID] and _Items[ID].Data or nil
+end
+
+
+function GetItemStrID(ID)
+	return _Items[ID] and _Items[ID].StrID or "error_item"
 end
 
 
@@ -156,6 +162,6 @@ function FireWeapon(CID, ID)
 			Game.GameServer:CreateHammerHit(FirePoint)
 		end
 	elseif AttackType == ATTACK_TYPE_SPAWN_PROJECTILE then
-		World.Spawn(Projectile, Chr.Pos, Dir, CID, DamageType, Damage)
+		World.Spawn(Projectile, Chr.Pos, Game.Players(CID).WorldID, Dir, CID, DamageType, Damage)
 	end
 end

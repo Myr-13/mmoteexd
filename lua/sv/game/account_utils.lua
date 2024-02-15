@@ -25,7 +25,7 @@ function GiveItem(CID, ID, Count)
 	Player.SetData(CID, "Inventory", Inv)
 
 	if Player.GetData(CID, "IsMMO") then
-		Network.SendMsg(CID, "collect_item@hud", {Name = GetItemName(ID), Count = Count})
+		Network.SendMsg(CID, "collect_item@hud", {Name = GetItemName(ID), StrID = GetItemStrID(ID), Count = Count})
 	else
 		Server.SendChat(CID, "You got: %s x%d", GetItemName(ID), Count)
 	end

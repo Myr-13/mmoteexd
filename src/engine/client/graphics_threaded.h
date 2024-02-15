@@ -146,9 +146,10 @@ public:
 		TEXFORMAT_RGBA,
 
 		TEXFLAG_NOMIPMAPS = 1,
-		TEXFLAG_TO_3D_TEXTURE = (1 << 3),
-		TEXFLAG_TO_2D_ARRAY_TEXTURE = (1 << 4),
-		TEXFLAG_NO_2D_TEXTURE = (1 << 5),
+		TEXFLAG_NOFILTER = 1 << 1,
+		TEXFLAG_TO_3D_TEXTURE = 1 << 3,
+		TEXFLAG_TO_2D_ARRAY_TEXTURE = 1 << 4,
+		TEXFLAG_NO_2D_TEXTURE = 1 << 5,
 	};
 
 	enum
@@ -960,7 +961,7 @@ public:
 	bool UnloadTextTextures(CTextureHandle &TextTexture, CTextureHandle &TextOutlineTexture) override;
 	bool UpdateTextTexture(CTextureHandle TextureID, int x, int y, size_t Width, size_t Height, const void *pData) override;
 
-	CTextureHandle LoadSpriteTextureImpl(CImageInfo &FromImageInfo, int x, int y, size_t w, size_t h);
+	CTextureHandle LoadSpriteTextureImpl(CImageInfo &FromImageInfo, int x, int y, size_t w, size_t h, bool NoFilter = false) override;
 	CTextureHandle LoadSpriteTexture(CImageInfo &FromImageInfo, struct CDataSprite *pSprite) override;
 
 	bool IsImageSubFullyTransparent(CImageInfo &FromImageInfo, int x, int y, int w, int h) override;

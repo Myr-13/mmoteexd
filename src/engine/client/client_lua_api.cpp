@@ -61,6 +61,13 @@ void register_client_api(lua_State *L)
 		.beginClass<IGraphics::CTextureHandle>("CTextureHandle")
 		.endClass()
 
+		.beginClass<CImageInfo>("CImageInfo")
+		.addConstructor<void (*)()>()
+
+		.addProperty("Width", &CImageInfo::m_Width, false)
+		.addProperty("Height", &CImageInfo::m_Height, false)
+		.endClass()
+
 		.beginClass<IGraphics>("IGraphics")
 		.addProperty("ScreenAspect", &IGraphics::ScreenAspect)
 
@@ -78,6 +85,10 @@ void register_client_api(lua_State *L)
 		.addFunction("MapScreen", &IGraphics::MapScreen)
 		.addFunction("LoadTexture", [](IGraphics *pSelf, const char *pPath) { return pSelf->LoadTexture(pPath, IStorage::TYPE_ALL); })
 		.addFunction("UnloadTexture", &IGraphics::UnloadTexture)
+
+		.addFunction("LoadPNG", [](IGraphics *pSelf, CImageInfo *pImg, const char *pPath) { return pSelf->LoadPNG(pImg, pPath, IStorage::TYPE_ALL); })
+		.addFunction("FreePNG", &IGraphics::FreePNG)
+		.addFunction("LoadSpriteTextureImpl", &IGraphics::LoadSpriteTextureImpl)
 		.endClass()
 
 		.beginClass<ITextRender>("ITextRender")

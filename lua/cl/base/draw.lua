@@ -46,6 +46,51 @@ Draw.UnloadTexture = function(Name)
 end
 
 
+Draw.LoadTextureNoFilter = function(Name, Path)
+	local Set = Draw.CreateSpriteSet(Path, 1, 1)
+	Draw.LoadSpriteTexture(Name, Set, 0, 0)
+	Draw.DeleteSpriteSet(Set)
+end
+
+
+Draw.CreateSpriteSet = function(Path, GridX, GridY)
+	local ImgInfo = CImageInfo()
+
+	if not Game.Graphics:LoadPNG(ImgInfo, Path) then
+		return
+	end
+
+	return {
+		PixPerGridX = ImgInfo.Width / GridX,
+		PixPerGridY = ImgInfo.Height / GridY,
+		Info = ImgInfo
+	}
+end
+
+
+Draw.DeleteSpriteSet = function(SpriteSet)
+	Game.Graphics:FreePNG(SpriteSet.Info)
+end
+
+
+Draw.LoadSpriteTexture = function(Name, SpriteSet, x, y, w, h)
+	if not w then
+		w = 1
+	end
+
+	if not h then
+		h = 1
+	end
+
+	x = x * SpriteSet.PixPerGridX
+	y = y * SpriteSet.PixPerGridY
+	w = w * SpriteSet.PixPerGridX
+	h = h * SpriteSet.PixPerGridY
+
+	Draw._Textures[Name] = Game.Graphics:LoadSpriteTextureImpl(SpriteSet.Info, x, y, w, h, true)
+end
+
+
 Draw.SetColor = function(r, g, b, a)
 	if not a then
 		a = 255
@@ -99,6 +144,11 @@ end
 Draw.TextLeft = function(x, y, Size, Format, ...)
 	local FinalText = string.format(Format, ...)
 	Draw.Text(x - Game.TextRender:TextWidth(Size, FinalText), y, Size, FinalText)
+end
+
+
+Draw.TextWidth = function(Size, Format, ...)
+	return Game.TextRender:TextWidth(Size, string.format(Format, ...))
 end
 
 
