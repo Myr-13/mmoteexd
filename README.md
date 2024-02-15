@@ -3,7 +3,7 @@
 
 Maybe this readme will be better someday...
 
-You can follow updates on out [discord server](https://discord.gg/eJwGMHsYPJ)
+You can follow updates on our [discord server](https://discord.gg/eJwGMHsYPJ)
 
 Building on windows
 -------------------
