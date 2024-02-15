@@ -1,9 +1,12 @@
 #include "menus_imgui.h"
 
+#include <engine/shared/lua/lua_state.h>
+#include <lua/lua.hpp>
+#include <engine/external/luabridge/LuaBridge.h>
 #include <engine/client/imgui/imgui_custom.h>
 #include <engine/serverbrowser.h>
 #include <engine/client.h>
-#include <game/client/render.h>
+
 #include <game/client/animstate.h>
 #include <game/client/gameclient.h>
 
@@ -110,6 +113,8 @@ bool CMenusImGui::OnInput(const IInput::CEvent &Event)
 {
 	if(Event.m_Flags & IInput::FLAG_PRESS && Event.m_Key == KEY_ESCAPE)
 		ToggleMenu();
+
+	LUA_FIRE_EVENT("OnInput", Event)
 
 	return false;
 }

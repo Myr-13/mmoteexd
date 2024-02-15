@@ -4,11 +4,25 @@
 
 #include <lua/lua.hpp>
 #include <engine/external/luabridge/LuaBridge.h>
+#include <engine/client/imgui/imgui.h>
 
 #include <base/system.h>
 #include <base/vmath.h>
 #include <engine/console.h>
 #include <game/client/gameclient.h>
+
+void register_imgui(lua_State *L)
+{
+	luabridge::getGlobalNamespace(L)
+		.beginNamespace("ImGui")
+		.addFunction("Begin", [](const char *pName, int Flags) { ImGui::Begin(pName, 0x0, Flags); })
+		.addFunction("End", &ImGui::End)
+		.addFunction("_LabelText", [](const char *pLabel, const char *pText) { ImGui::LabelText(pLabel, "%s", pText); })
+		.addFunction("_BulletText", [](const char *pText) { ImGui::BulletText("%s", pText); })
+		.addFunction("_Button", [](const char *pText, vec2 Size) { return ImGui::Button(pText, ImVec2(Size.x, Size.y)); })
+		.addFunction("SameLine", []() { ImGui::SameLine(); })
+		.endNamespace();
+}
 
 void register_client_api(lua_State *L)
 {
@@ -56,6 +70,7 @@ void register_client_api(lua_State *L)
 		.addFunction("LinesEnd", &IGraphics::LinesEnd)
 		.addFunction("QuadsDraw", &IGraphics::QuadsDrawLua)
 		.addFunction("LinesDraw", &IGraphics::LinesDrawLua)
+		.addFunction("DrawRectExt", &IGraphics::DrawRectExt)
 
 		.addFunction("SetColor", [](IGraphics *pSelf, float r, float g, float b, float a) { pSelf->SetColor(r, g, b, a); })
 		.addFunction("TextureClear", &IGraphics::TextureClear)
@@ -70,7 +85,19 @@ void register_client_api(lua_State *L)
 		.addFunction("TextWidth", [](ITextRender *pSelf, int Size, const char *pText) { return pSelf->TextWidth(Size, pText); })
 		.endClass()
 
+		.beginClass<IInput::CEvent>("CEvent")
+		.addProperty("Key", &IInput::CEvent::m_Key, false)
+		.addProperty("Flags", &IInput::CEvent::m_Flags, false)
+		.endClass()
+
+		.beginClass<IInput>("IInput")
+		.addFunction("MouseModeAbsolute", &IInput::MouseModeAbsolute)
+		.addFunction("MouseModeRelative", &IInput::MouseModeRelative)
+		.endClass()
+
 		.beginClass<IClient>("IClient")
+		.addProperty("LocalTime", &IClient::LocalTime)
+
 		.addFunction("SendMsg", [](IClient *pSelf, CMsgPacker *pMsg, int Flags) { pSelf->SendMsg(0, pMsg, Flags); })
 		.endClass()
 
@@ -79,6 +106,7 @@ void register_client_api(lua_State *L)
 		.addProperty("GameClient", &SLuaState::ms_pGameClient, false)
 		.addProperty("Graphics", &SLuaState::ms_pGameClient->m_pGraphics, false)
 		.addProperty("TextRender", &SLuaState::ms_pGameClient->m_pTextRender, false)
+		.addProperty("Input", &SLuaState::ms_pGameClient->m_pInput, false)
 		.endNamespace();
 }
 
@@ -131,5 +159,6 @@ void register_shared_api(lua_State *L)
 void CLuaFile::RegisterAPI(bool Server)
 {
 	register_shared_api(m_pState);
+	register_imgui(m_pState);
 	register_client_api(m_pState);
 }

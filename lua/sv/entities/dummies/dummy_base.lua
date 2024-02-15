@@ -31,7 +31,7 @@ function CreateDummyEntity()
 				Game.GameServer:CreateSound(self.Pos, SOUND_PLAYER_DIE)
 				Game.GameServer:CreateDeath(self.Pos, CID)
 
-				World.Spawn("pickup", self.Pos, CID)
+				World.Spawn("pickup", self.Pos, self.WorldID, CID)
 				GiveExp(CID, self.Data.Level * 10)
 			end
 		end,

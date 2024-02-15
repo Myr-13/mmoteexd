@@ -18,7 +18,7 @@ EntityManager.Register("spell_healing_rain", {
 		self.DamageType = DamageType
 		self.Heal = Damage
 		self.StartedTick = Game.Server.Tick
-		self.EndTick = Game.Server.Tick + 300 -- К сожалению я заебался ебаться с тиками, поэтому пусть будет 300, а не 400
+		self.EndTick = Game.Server.Tick + 300
 		self.SnapIDs = {}
 		for i = 1, 10 do
 			self.SnapIDs[i] = Game.Server:SnapNewID()
@@ -52,7 +52,6 @@ EntityManager.Register("spell_healing_rain", {
 		Ent = World.GetFirstCharacterInRadius(self.Pos, self.StartedTick)
 		if Ent then
 			if Game.Server.Tick % 50 == 0 then
-				print("123123")
 				Ent.Health = math.clamp(Ent.Health + self.Heal, 0, Ent.MaxHealth)
 			end
 			return

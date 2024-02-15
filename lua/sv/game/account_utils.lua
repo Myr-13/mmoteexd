@@ -23,7 +23,12 @@ function GiveItem(CID, ID, Count)
 	end
 
 	Player.SetData(CID, "Inventory", Inv)
-	Server.SendChat(CID, "You got: %s x%d", GetItemName(ID), Count)
+
+	if Player.GetData(CID, "IsMMO") then
+		Network.SendMsg(CID, "collect_item@hud", {Name = GetItemName(ID), Count = Count})
+	else
+		Server.SendChat(CID, "You got: %s x%d", GetItemName(ID), Count)
+	end
 end
 
 
@@ -121,4 +126,30 @@ end
 function GetReloadTime(CID, ReloadTime)
 	local Stats = Player.GetData(CID, "Stats")
 	return math.max(math.floor(ReloadTime - (ReloadTime / 100 * Statistic.AttackSpeed(Stats.Dex))), 0)
+end
+
+
+function UpgradeStat(CID, StatID)
+	local AccData = Player.GetData(CID, "AccData")
+	local Stats = Player.GetData(CID, "Stats")
+
+	if AccData.UpgradePoints <= 0 then
+		Server.SendChat(CID, "You don't have enough upgrade points")
+		return
+	end
+
+	if StatID == 0 then
+		Stats.Str = Stats.Str + 1
+	elseif StatID == 1 then
+		Stats.Dex = Stats.Dex + 1
+	else
+		Stats.Int = Stats.Int + 1
+	end
+
+	AccData.UpgradePoints = AccData.UpgradePoints - 1
+
+	Player.SetData(CID, "AccData", AccData)
+	Player.SetData(CID, "Stats", Stats)
+
+	UpdatePlayerStats(CID)
 end

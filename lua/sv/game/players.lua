@@ -161,7 +161,7 @@ local function HandleMessageSending(CID, Ply, WorldID)
 
 	local AccData = Player.GetData(CID, "AccData")
 
-	Network.SendMsg(CID, "stats@acc", {
+	Network.SendMsg(CID, "account_info@acc", {
 		Name = AccData.Name,
 		Level = AccData.Level,
 		Exp = AccData.Exp,
@@ -170,8 +170,11 @@ local function HandleMessageSending(CID, Ply, WorldID)
 		Health = Chr.Health,
 		MaxHealth = Chr.MaxHealth,
 		Mana = Player.GetData(CID, "Mana"),
-		MaxMana = Player.GetData(CID, "MaxMana")
+		MaxMana = Player.GetData(CID, "MaxMana"),
+		UpgradePoints = AccData.UpgradePoints
 	})
+
+	Network.SendMsg(CID, "stats@acc", Player.GetData(CID, "Stats"))
 end
 
 

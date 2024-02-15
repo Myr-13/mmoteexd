@@ -116,9 +116,10 @@ void CGameClient::OnConsoleInit()
 					      &m_Menus, // 36
 					      &m_Tooltips, // 37
 					      &CMenus::m_Binder, // 38
-					      &m_GameConsole, // 39
-					      &m_MenuBackground, // 40
-				              &m_ImGuiMenus /* 41 */});
+					      &m_ImGuiMenus, // 39
+					      &m_GameConsole, // 40
+					      &m_MenuBackground // 41
+				              });
 
 	// build the input stack
 	m_vpInput.insert(m_vpInput.end(), {&CMenus::m_Binder, // this will take over all input when we want to bind a key

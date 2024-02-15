@@ -17,11 +17,17 @@ end
 include("sh/base/ex_math.lua")
 include("sh/base/hook.lua")
 include("cl/base/draw.lua")
+include("cl/base/imgui_ex.lua")
+include("cl/base/input.lua")
 include("cl/base/network.lua")
+include("cl/base/render_tools.lua")
+include("cl/base/utils.lua")
 
 include("cl/game/hud/hud.lua")
+include("cl/game/hud/menus.lua")
 include("cl/game/account.lua")
 include("cl/game/resources.lua")
+include("cl/game/stats.lua")
 
 
 -- Do other stuff
@@ -43,6 +49,7 @@ end
 
 RegisterHook("OnMessage")
 RegisterHook("OnShutdown")
+RegisterHook("OnInput")
 
 Hook.Call("OnInit")
 

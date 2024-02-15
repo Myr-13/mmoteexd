@@ -231,28 +231,7 @@ local function HandleCmd(CID, Cmd)
 	-- Stats upgrade
 	if string.starts_with(Cmd, "stats_upgrade") then
 		local StatID = tonumber(string.ex_match(Cmd, "%d+")[1])
-		local AccData = Player.GetData(CID, "AccData")
-		local Stats = Player.GetData(CID, "Stats")
-
-		if AccData.UpgradePoints <= 0 then
-			Server.SendChat(CID, "You don't have enough upgrade points")
-			return
-		end
-
-		if StatID == 0 then
-			Stats.Str = Stats.Str + 1
-		elseif StatID == 1 then
-			Stats.Dex = Stats.Dex + 1
-		else
-			Stats.Int = Stats.Int + 1
-		end
-
-		AccData.UpgradePoints = AccData.UpgradePoints - 1
-
-		Player.SetData(CID, "AccData", AccData)
-		Player.SetData(CID, "Stats", Stats)
-
-		UpdatePlayerStats(CID)
+		UpgradeStat(CID, StatID)
 		RebuildMenu(CID)
 
 		return

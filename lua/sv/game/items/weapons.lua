@@ -13,7 +13,7 @@ AddItem(3, TYPE_WEAPON, "Wand", "Magic weapon", {
 	["DamageType"] = DAMAGE_TYPE_MAGIC,
 	["ReloadTime"] = 15,
 	["AttackType"] = ATTACK_TYPE_SPAWN_PROJECTILE,
-	["Projectile"] = "spell_healing_rain",
+	["Projectile"] = "basic_projectile",
 	["ManaCost"] = 0,
 	["Damage"] = 5,
 	["SnapWeapon"] = SNAP_WEAPON_GUN

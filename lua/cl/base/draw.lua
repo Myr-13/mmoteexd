@@ -2,6 +2,19 @@ Draw = {}
 Draw._RenderColor = {r = 1.0, g = 1.0, b = 1.0, a = 1.0}
 Draw._Textures = {}
 
+CORNER_NONE = 0
+CORNER_TL = 1
+CORNER_TR = 2
+CORNER_BL = 4
+CORNER_BR = 8
+
+CORNER_T = CORNER_TL + CORNER_TR
+CORNER_B = CORNER_BL + CORNER_BR
+CORNER_R = CORNER_TR + CORNER_BR
+CORNER_L = CORNER_TL + CORNER_BL
+
+CORNER_ALL = CORNER_T + CORNER_B
+
 
 Draw.ClearTexture = function()
 	Game.Graphics:TextureClear()
@@ -45,18 +58,30 @@ Draw.SetColor = function(r, g, b, a)
 end
 
 
-Draw.Rect = function(x, y, w, h)
-	Draw.RectCentred(x + w / 2, y + h / 2, w, h)
+Draw.SetColorTable = function(tbl)
+	Draw.SetColor(tbl[1], tbl[2], tbl[3], tbl[4])
 end
 
 
-Draw.RectCentred = function(x, y, w, h)
+Draw.Rect = function(x, y, w, h, r, Corners)
+	if not r then
+		r = 0
+	end
+
+	if not Corners then
+		Corners = CORNER_NONE
+	end
+
+	
 	Game.Graphics:QuadsBegin()
 	Game.Graphics:SetColor(Draw._RenderColor.r, Draw._RenderColor.g, Draw._RenderColor.b, Draw._RenderColor.a)
-	Game.Graphics:QuadsDraw({
-		QuadItem(x, y, w, h)
-	})
+	Game.Graphics:DrawRectExt(x, y, w, h, r, Corners)
 	Game.Graphics:QuadsEnd()
+end
+
+
+Draw.RectCentred = function(x, y, w, h, r, Corners)
+	Draw.Rect(x - w / 2, y - h / 2, w, h, r, Corners)
 end
 
 
