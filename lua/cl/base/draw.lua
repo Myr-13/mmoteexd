@@ -1,6 +1,15 @@
 Draw = {}
 Draw._RenderColor = {r = 1.0, g = 1.0, b = 1.0, a = 1.0}
 Draw._Textures = {}
+Draw._RichTextColors = {
+	["r"] = {255, 50, 50},
+	["y"] = {255, 255, 50},
+	["g"] = {50, 255, 50},
+	["a"] = {50, 255, 255},
+	["b"] = {50, 50, 255},
+	["m"] = {255, 50, 255},
+	["w"] = {255, 255, 255}
+}
 
 CORNER_NONE = 0
 CORNER_TL = 1
@@ -14,6 +23,10 @@ CORNER_R = CORNER_TR + CORNER_BR
 CORNER_L = CORNER_TL + CORNER_BL
 
 CORNER_ALL = CORNER_T + CORNER_B
+
+TEXT_ALIGN_LEFT = 0
+TEXT_ALIGN_CENTER = 1
+TEXT_ALIGN_RIGHT = 2
 
 
 Draw.ClearTexture = function()
@@ -130,25 +143,63 @@ Draw.RectCentred = function(x, y, w, h, r, Corners)
 end
 
 
-Draw.Text = function(x, y, Size, Format, ...)
-	Game.TextRender:Text(x, y, Size, string.format(Format, ...), -1)
-end
+Draw.TextColor = function(r, g, b, a)
+	if not a then
+		a = 255
+	end
 
-
-Draw.TextCenter = function(x, y, Size, Format, ...)
-	local FinalText = string.format(Format, ...)
-	Draw.Text(x - Game.TextRender:TextWidth(Size, FinalText) / 2, y, Size, FinalText)
-end
-
-
-Draw.TextLeft = function(x, y, Size, Format, ...)
-	local FinalText = string.format(Format, ...)
-	Draw.Text(x - Game.TextRender:TextWidth(Size, FinalText), y, Size, FinalText)
+	Game.TextRender:TextColor(r / 255, g / 255, b / 255, a / 255)
 end
 
 
 Draw.TextWidth = function(Size, Format, ...)
 	return Game.TextRender:TextWidth(Size, string.format(Format, ...))
+end
+
+
+Draw.Text = function(x, y, Size, Align, Format, ...)
+	local FinalText = string.format(Format, ...)
+
+	if Align == TEXT_ALIGN_CENTER then
+		x = x - Draw.TextWidth(Size, FinalText) / 2
+	elseif Align == TEXT_ALIGN_LEFT then
+		x = x - Draw.TextWidth(Size, FinalText)
+	end
+
+	Game.TextRender:Text(x, y, Size, string.format(Format, ...), -1)
+end
+
+
+Draw.RichText = function(x, y, Size, Format, ...)
+	local Text = string.format(Format, ...)
+
+	Draw.SetColor(255, 255, 255)
+
+	local Tbl = parse_rich_text(Text)
+
+	for _, v in pairs(Tbl) do
+		if v[1] then
+			local Cmd = v[2]
+
+			if Cmd == "i" then
+				Draw.SetTexture("item_" .. v[3])
+				Draw.Rect(x, y, Size, Size)
+				x = x + Size
+			else
+				local Clr = Draw._RichTextColors[Cmd]
+
+				if Clr then
+					Draw.TextColor(Clr[1], Clr[2], Clr[3])
+				end
+			end
+		else
+			local Text = v[3]
+			Draw.Text(x, y, Size, TEXT_ALIGN_RIGHT, Text)
+			x = x + Draw.TextWidth(Size, Text)
+		end
+	end
+
+	Draw.TextColor(255, 255, 255)  -- Back to white text
 end
 
 

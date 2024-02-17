@@ -94,6 +94,7 @@ void register_client_api(lua_State *L)
 		.beginClass<ITextRender>("ITextRender")
 		.addFunction("Text", &ITextRender::Text)
 		.addFunction("TextWidth", [](ITextRender *pSelf, int Size, const char *pText) { return pSelf->TextWidth(Size, pText); })
+		.addFunction("TextColor", [](ITextRender *pSelf, float r, float g, float b, float a) { pSelf->TextColor(r, g, b, a); })
 		.endClass()
 
 		.beginClass<IInput::CEvent>("CEvent")
@@ -119,6 +120,8 @@ void register_client_api(lua_State *L)
 		.addProperty("TextRender", &SLuaState::ms_pGameClient->m_pTextRender, false)
 		.addProperty("Input", &SLuaState::ms_pGameClient->m_pInput, false)
 		.endNamespace();
+
+	lua_register(L, "parse_rich_text", lua_parse_rich_text);
 }
 
 void register_shared_api(lua_State *L)

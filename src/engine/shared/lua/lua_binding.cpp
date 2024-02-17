@@ -78,3 +78,93 @@ int lua_list_dir(lua_State *L)
 
 	return 1;
 }
+
+struct SPart
+{
+	bool m_IsCmd;
+	std::string m_Cmd;
+	std::string m_Data;
+};
+
+int lua_parse_rich_text(lua_State *L)
+{
+	if(lua_gettop(L) < 1)
+		return luaL_argerror(L, 1, "expected 1 argument");
+	std::string Str = luaL_checkstring(L, 1);
+
+	std::vector<SPart> Result;
+
+	size_t Pos = 0;
+	while(Pos < Str.size())
+	{
+		if(Str[Pos] == '<')
+		{
+			size_t EndPos = Str.find('>', Pos);
+
+			if(EndPos != std::string::npos)
+			{
+				std::string Tag = Str.substr(Pos + 1, EndPos - Pos - 1);
+
+				if(Tag.empty())
+				{
+					// Invalid tag
+					Pos++;
+					continue;
+				}
+
+				// Opening tag
+				size_t ColonPos = Tag.find(':');
+				std::string Cmd;
+				std::string Data;
+
+				if(ColonPos != std::string::npos)
+				{
+					Cmd = Tag.substr(0, ColonPos);
+					Data = Tag.substr(ColonPos + 1);
+				}
+				else
+					Cmd = Tag;
+
+				Result.push_back({true, Cmd, Data});
+				Pos = EndPos + 1;
+			}
+			else // Invalid tag
+				Pos++;
+		} else {
+			// Text
+			size_t EndPos = Str.find('<', Pos);
+
+			if(EndPos == std::string::npos)
+				EndPos = Str.size();
+
+			Result.push_back({false, "", Str.substr(Pos, EndPos - Pos)});
+			Pos = EndPos;
+		}
+	}
+
+	// Result table
+	lua_newtable(L);
+	int OuterIdx = lua_gettop(L);
+
+	int InnerIdx = 1;
+	for(SPart &Part : Result)
+	{
+		lua_newtable(L);
+		int InnerTable = lua_gettop(L);
+
+		lua_pushboolean(L, Part.m_IsCmd);
+		lua_rawseti(L, InnerTable, 1);
+
+		lua_pushstring(L, Part.m_Cmd.c_str());
+		lua_rawseti(L, InnerTable, 2);
+
+		lua_pushstring(L, Part.m_Data.c_str());
+		lua_rawseti(L, InnerTable, 3);
+
+		// Push table to outer table
+		lua_rawseti(L, OuterIdx, InnerIdx);
+		InnerIdx++;
+	}
+
+	return 1;
+}

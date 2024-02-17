@@ -25,7 +25,7 @@ local function SideBar()
 	Draw.SetColor(255, 255, 255)
 	Draw.Rect(x, y + 0.5, FontSize, FontSize)
 
-	Draw.Text(x + FontSize + 1, y, FontSize, "%s", Account.Name)
+	Draw.Text(x + FontSize + 1, y, FontSize, TEXT_ALIGN_RIGHT, "%s", Account.Name)
 	y = y + FontSize + 2
 
 	-- Money
@@ -33,7 +33,7 @@ local function SideBar()
 	Draw.SetColor(255, 255, 255)
 	Draw.Rect(x, y + 0.5, FontSize, FontSize)
 
-	Draw.Text(x + FontSize + 1, y, FontSize, "%s$", Utils.FormatNumber(Account.Money))
+	Draw.RichText(x + FontSize + 1, y, FontSize, "%s<y>$", Utils.FormatNumber(Account.Money))
 end
 
 
@@ -63,7 +63,7 @@ local function HealthAndMana()
 	Draw.SetTexture("hud_heart")
 	Draw.Rect(HPX + 2, 252, 6, 6)
 
-	Draw.Text(HPX, 243, 5, "%s/%s", Utils.FormatNumber(Account.Health), Utils.FormatNumber(Account.MaxHealth))
+	Draw.Text(HPX, 243, 5, TEXT_ALIGN_RIGHT, "%s/%s", Utils.FormatNumber(Account.Health), Utils.FormatNumber(Account.MaxHealth))
 
 	-- Mana bar
 	Draw.ClearTexture()
@@ -78,7 +78,7 @@ local function HealthAndMana()
 	Draw.SetColor(255, 255, 255)
 	Draw.Rect(MPXClear - 8, 252, 6, 6)
 
-	Draw.TextLeft(MPXClear, 243, 5, "%s/%s", Utils.FormatNumber(Account.Mana), Utils.FormatNumber(Account.MaxMana))
+	Draw.Text(MPXClear, 243, 5, TEXT_ALIGN_LEFT, "%s/%s", Utils.FormatNumber(Account.Mana), Utils.FormatNumber(Account.MaxMana))
 end
 
 
@@ -100,8 +100,8 @@ local function LevelBar()
 	Draw.Rect(PosX, PosY, Width * ExpRatio, 4, 2, CORNER_ALL)
 
 	-- Text
-	Draw.TextCenter(PosX + Width / 2, PosY - 7, 6, "%d", Account.Level)
-	Draw.TextCenter(PosX + Width / 2, PosY + 7, 4, "%s/%s", Utils.FormatNumber(Account.Exp), Utils.FormatNumber(Account.NeedExp))
+	Draw.Text(PosX + Width / 2, PosY - 7, 6, TEXT_ALIGN_CENTER, "%d", Account.Level)
+	Draw.Text(PosX + Width / 2, PosY + 7, 4, TEXT_ALIGN_CENTER, "%s/%s", Utils.FormatNumber(Account.Exp), Utils.FormatNumber(Account.NeedExp))
 end
 
 
@@ -113,13 +113,9 @@ local function CollectedItems()
 	for k, v in pairs(_CollectedItems) do
 		OffsetY = OffsetY + FontSize
 		local y = 300 - OffsetY
-		Draw.Text(PosX, y, FontSize, v.Text)
+		Draw.Text(PosX, y, FontSize, TEXT_ALIGN_RIGHT, v.Text)
 
-		local ImgX = PosX + Draw.TextWidth(FontSize, v.Text)
-
-		Draw.SetTexture("item_" .. v.StrID)
-		Draw.SetColor(255, 255, 255)
-		Draw.Rect(ImgX, y, FontSize, FontSize)
+		Draw.RichText(PosX, y, FontSize, v.Text .. " <i:" .. v.StrID .. ">")
 
 		if Game.Client.LocalTime > v.EndTime then
 			table.remove(_CollectedItems, k)
