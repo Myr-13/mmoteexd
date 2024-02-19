@@ -23,6 +23,7 @@ include("cl/base/network.lua")
 include("cl/base/render_tools.lua")
 include("cl/base/utils.lua")
 
+include("sh/game/items_manager.lua")
 include("cl/game/hud/hud.lua")
 include("cl/game/hud/menus.lua")
 include("cl/game/account.lua")

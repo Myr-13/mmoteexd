@@ -21,6 +21,7 @@ void register_imgui(lua_State *L)
 		.addFunction("_BulletText", [](const char *pText) { ImGui::BulletText("%s", pText); })
 		.addFunction("_Button", [](const char *pText, vec2 Size) { return ImGui::Button(pText, ImVec2(Size.x, Size.y)); })
 		.addFunction("SameLine", []() { ImGui::SameLine(); })
+		.addFunction("Image", [](int ImgID, vec2 Size) { ImGui::Image((ImTextureID)ImgID, ImVec2(Size.x, Size.y)); })
 		.endNamespace();
 }
 

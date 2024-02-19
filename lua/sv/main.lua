@@ -27,6 +27,7 @@ include("sv/game/commands/general.lua")
 include("sv/game/enums/sounds.lua")
 include("sv/game/enums/tiles.lua")
 
+include("sh/game/items_manager.lua")
 include("sv/game/account_utils.lua")
 include("sv/game/auth.lua")
 include("sv/game/items.lua")

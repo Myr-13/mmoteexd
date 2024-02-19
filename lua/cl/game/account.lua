@@ -10,6 +10,7 @@ Account.Mana = 0
 Account.MaxMana = 1
 Account.UpgradePoints = 0
 Account.Stats = {}
+Account.Inventory = {}
 
 
 Account.UpdateAccount = function(Data)
@@ -24,5 +25,13 @@ Account.UpdateStats = function(Data)
 end
 
 
+Account.SetupInventory = function(Data)
+	for k, v in pairs(Data) do
+		Account.Inventory[tonumber(k)] = v
+	end
+end
+
+
 Network.RegisterCallback("account_info@acc", Account.UpdateAccount)
 Network.RegisterCallback("stats@acc", Account.UpdateStats)
+Network.RegisterCallback("inv@acc", Account.SetupInventory)

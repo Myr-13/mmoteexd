@@ -1,6 +1,8 @@
-local Menus = {
-	IsStatsOpen = false
-}
+local MENU_NONE = 0
+local MENU_STATS = 1
+local MENU_INVENTORY = 2
+
+local MenuOpened = MENU_NONE
 
 
 local function RenderStats()
@@ -14,7 +16,6 @@ local function RenderStats()
 	-- Str
 	if ImGuiEx.ButtonEx(vec2(75, 20), "Upgrade##0") then
 		Network.SendMsg("upgrade@stats", { ID = 0 })
-		print("A")
 	end
 
 	ImGui.SameLine()
@@ -49,21 +50,53 @@ local function RenderStats()
 end
 
 
+local function RenderInventory()
+	ImGui.Begin("Inventory", 0)
+
+	for k, v in pairs(Account.Inventory) do
+		ImGuiEx.Text("%s x%d", GetItemName(k), v["Count"])
+	end
+
+	ImGui.End()
+end
+
+
+local function OpenMenu(MenuID)
+	if MenuOpened == MenuID then
+		MenuOpened = MENU_NONE
+	else
+		MenuOpened = MenuID
+	end
+
+	if MenuOpened == MENU_NONE then
+		Game.Input:MouseModeRelative()
+	else
+		Game.Input:MouseModeAbsolute()
+	end
+end
+
+
 Hook.Add("RenderLevel39", "MenusRender", function()
-	if Menus.IsStatsOpen then
+	if MenuOpened == MENU_STATS then
 		RenderStats()
+	elseif MenuOpened == MENU_INVENTORY then
+		RenderInventory()
 	end
 end)
 
 
 Hook.Add("OnInput", "Menus", function(Event)
-	if Event.Flags == 1 and Event.Key == KEY_I then  -- LuaJIT dosen't support binop, only with module :(
-		Menus.IsStatsOpen = not Menus.IsStatsOpen
+	if Event.Flags == 1 then  -- LuaJIT dosen't support binop, only with module :(
+		local Key = Event.Key
 
-		if Menus.IsStatsOpen then
-			Game.Input:MouseModeAbsolute()
-		else
-			Game.Input:MouseModeRelative()
+		if Key == KEY_O then
+			OpenMenu(MENU_STATS)
+		elseif Event.Key == KEY_I then
+			OpenMenu(MENU_INVENTORY)
+		end
+
+		if Key == KEY_ESCAPE then
+			OpenMenu(MENU_NONE)
 		end
 	end
 end)
