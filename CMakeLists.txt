@@ -2417,7 +2417,6 @@ if(GTEST_FOUND OR DOWNLOAD_GTEST)
     os.cpp
     packer.cpp
     prng.cpp
-    score.cpp
     secure_random.cpp
     serverbrowser.cpp
     serverinfo.cpp
@@ -2452,8 +2451,6 @@ if(GTEST_FOUND OR DOWNLOAD_GTEST)
     src/engine/server/sql_string_helpers.h
     src/game/server/teehistorian.cpp
     src/game/server/teehistorian.h
-    src/game/server/scoreworker.cpp
-    src/game/server/scoreworker.h
   )
 
   set(TARGET_TESTRUNNER testrunner)

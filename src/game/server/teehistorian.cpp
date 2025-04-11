@@ -740,6 +740,9 @@ void CTeeHistorian::RecordDDNetVersion(int ClientID, CUuid ConnectionID, int DDN
 
 void CTeeHistorian::RecordAuthInitial(int ClientID, int Level, const char *pAuthName)
 {
+	if(!pAuthName)
+		return;
+
 	CPacker Buffer;
 	Buffer.Reset();
 	Buffer.AddInt(ClientID);
